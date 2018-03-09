@@ -11,6 +11,8 @@ from django.views import generic
 
 from .models import Question, Choice
 
+#Substitiued by IndexView, which is a template provide by Django
+#Make code shorter
 def index(request):
 	latest_question_list = Question.objects.order_by('-pub_date')[:5]
 	template = loader.get_template('polls/index.html')
