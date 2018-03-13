@@ -1,14 +1,111 @@
 {% load static %}
+<html>
 
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" /> {% if latest_question_list %}
-<ul>
-    {% for question in latest_question_list %}
-    <!--<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>-->
-    <li>
-        <a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>No polls are available.</p>
-{% endif %}
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+        crossorigin="anonymous">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+        crossorigin="anonymous"></script>
+    <title>SuperFligt</title>
+</head>
+
+<body>
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" /> {% if latest_question_list %}
+    <div id="header">
+        <h2>
+            <div>
+                <p class="left">
+                    <img src="{% static 'polls/images/Rutgers.png' %}" width="40" height="40"> SuperFlight
+                </p>
+                <p class="right">
+                    login
+                    <img src=" {% static 'polls/images/login.jpg' %} " width="30 " height="30 ">
+                </p>
+            </div>
+        </h2>
+    </div>
+    <div style="clear: both;"></div>
+    <div id="selection">
+        <div>
+            <ul>
+                {% for question in latest_question_list %}
+                <!--<li><a href="/polls/{{ question.id }}/ ">{{ question.question_text }}</a></li>-->
+                <li>
+                    <a href="{% url 'polls:detail' question.id %} ">{{ question.question_text }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <h1 id="welcome">Welcome to SuperFlight, the best website for flight ticket</h1>
+        </div>
+        <div id="dropdown">
+            <div class="input-group">
+                <input type="text" id="from" class="form-control" name="from" value="New York(JFK)">
+                <input type="text" id="to" class="form-control" name="to" value="Beijing(BJS)">
+                <input type="text" onfocus="(this.type='date')" id="depart" class="form-control" placeholder="Depart Date">
+                <input type="text" onfocus="(this.type='date')" id="return" class="form-control" placeholder="Return Date">
+                <button id="passenger" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    <img id="passenger_icon" src="{% static 'polls/images/passenger2.jpg' %}" width=" 22 " height="22 " />
+                    <span class="passenger ">1</span>
+                </button>
+                <div class="dropdown-menu ">
+                    <li>
+                        <a class="dropdown-item " href="# ">1</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item " href="# ">2</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item " href="# ">3</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item " href="# ">4</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item " href="# ">5</a>
+                    </li>
+                </div>
+                <button id="search" type="button" class="btn btn-success">Search</button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>No polls are available.</p>
+    {% endif %}
+</body>
+
+<!--Footer-->
+<footer id="footer" class="page-footer font-small blue pt-4 mt-4">
+
+    <!--Footer Links-->
+    <div id="disclaimer" class="text-center py-3" style="background-color: #F8F8F8;">
+        <div class="list-unstyled list-inline mb-0">
+            <h6 class="text-uppercase">Disclamier</h6>
+            <p>This website is only used for CS539 project. No commercial use will be involved. </p>
+        </div>
+    </div>
+    <!--/.Footer Links-->
+
+    <!--Copyright-->
+    <div id="copyright" class="footer-copyright py-3 text-center" style="background-color: #F8F8F8;">
+        © 2018 Copyright: Shuaishuai Sun, Tianqi Nan, Xin Zhang, Zhu He
+    </div>
+    <!--/.Copyright-->
+
+</footer>
+<!--/.Footer-->
+
+<script>
+    $('.dropdown-menu li').on('click', function () {
+        $('.passenger').html($(this).find('a').html());
+    });
+</script>
+
+</html>

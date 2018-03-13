@@ -1,7 +1,92 @@
+#header {
+    margin-top:20px;
+    margin-left: 40px;
+    margin-bottom: -10px;
+    font-size: x-small;
+    overflow: auto;
+}
+
+#header h2 {
+    font-size: x-large;
+    overflow: auto;
+}
+
+#header .left {
+    float: left;
+    color: #ff9933;
+}
+
+#header .right {
+    color:black;
+    float: right;
+    margin-right: 40px;
+}
+
+#selection {
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.3),
+        rgba(0, 0, 0, 0)
+      ),white url("images/Busch.jpg") no-repeat;
+    opacity: 0.8;
+    height: 600px;
+}
+
+#selection #welcome {
+    color: white;
+    text-align: center;
+}
+
+#selection #dropdown {
+    background-color: white;
+    opacity: 0.9;
+    margin-left: 100px;
+    margin-right: 100px;
+    height: 200px;
+}
+
+#selection #dropdown .input-group {
+    padding-top: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#selection #dropdown #from {
+    margin-right: 10px;
+}
+
+#selection #dropdown #to {
+    margin-right: 10px;
+}
+
+#selection #dropdown #return {
+    margin-right: 10px;
+}
+
+#selection #dropdown #passenger {
+    width: 150;
+    margin-right: 10px;
+}
+
+#selection #dropdown #passenger_icon {
+    float: left;
+    margin-top: 2px;
+}
+
+#selection #dropdown #search {
+    width: 150;
+    margin-right: 10px;
+}
+
 li a {
     color: green;
 }
 
-body {
-    background: white url("images/giphy.gif") no-repeat;
+#footer #disclaimer{
+    margin-top: -50px;
+    margin-bottom: -40px;
+    font-size: small;
+}
+
+#footer #copyright {
+    font-size: x-small;
 }
