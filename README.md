@@ -11,7 +11,7 @@ pip install django
 Then clone the project and run:
 
 ```
-cd -CS539-FlightBooking
+cd FlightBooking
 python manage.py runserver
 ```
 
