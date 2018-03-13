@@ -1,4 +1,4 @@
-#MySql for flight ticket booking website
+# MySql for flight ticket booking website
 
 This project is used for 2018 Spring class CS539 Database Implementation. This project needs to use AWS MySql service. Then build a flight ticket booking website with that database.
 
