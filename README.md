@@ -20,7 +20,7 @@ By default, Django use sqlite as database. For this project, we need to use MySq
 
 ```
 brew install mysql
-pip instal mysqlclient
+pip instal mysqlclient
 ```
 
 After install mysql, you need to set a user name and password for it. Do not use default root name, that's a bad idea. Lon in mysql with new user name and password, and create a database for Django to use later. Now, we need to change mysite/settings.py file.
@@ -30,11 +30,11 @@ DATABASES = {
 	'default': {
 		#Change default ENGINE and NAME
 		'ENGINE': 'django.db.backends.mysql',
-       'NAME': 'YOUR DATABASE NAME',
-       'USER': 'USER NAME FOR MYSQL',
-       'PASSWORD': 'PASSWORD FOR MYSQL',
-       'HOST': '127.0.0.1',
-       'PORT': '3306',
+		'NAME': 'YOUR DATABASE NAME',
+		'USER': 'USER NAME FOR MYSQL',
+		'PASSWORD': 'PASSWORD FOR MYSQL',
+		'HOST': '127.0.0.1',
+		'PORT': '3306',
 	}
 }
 ```
