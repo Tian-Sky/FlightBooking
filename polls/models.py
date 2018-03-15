@@ -25,7 +25,6 @@ class Account(models.Model):
         'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
 
     class Meta:
-        managed = False
         db_table = 'Account'
         unique_together = (('customer', 'account_id'),)
 
@@ -39,7 +38,6 @@ class Airline(models.Model):
         db_column='Airline_name', max_length=100, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Airline'
 
 
@@ -57,7 +55,6 @@ class Airport(models.Model):
         db_column='Time_zone', max_length=45, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Airport'
 
 
@@ -95,7 +92,6 @@ class Customer(models.Model):
         db_column='Preference', max_length=20, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Customer'
 
 
@@ -114,7 +110,6 @@ class Delay(models.Model):
         db_column='Delay_time', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Delay'
         unique_together = (('airline', 'flight'),)
 
@@ -129,7 +124,6 @@ class FareRestriction(models.Model):
     discount = models.FloatField(db_column='Discount', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Fare_Restriction'
 
 
@@ -162,7 +156,6 @@ class Flights(models.Model):
         FareRestriction, on_delete=models.CASCADE, db_column='Fare_ID', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Flights'
         unique_together = (('airline', 'flight_id'),)
 
@@ -189,7 +182,6 @@ class ReservationFlight(models.Model):
     price = models.IntegerField(db_column='Price', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Reservation_Flight'
         unique_together = (
             ('reservation', 'airline_id', 'flight_id', 'p_name'),)
@@ -221,7 +213,6 @@ class ReservationInfo(models.Model):
         Flights, on_delete=models.CASCADE, db_column='Flight_ID', related_name="fligth_related")
 
     class Meta:
-        managed = False
         db_table = 'Reservation_Info'
 
 
