@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'django-env.v6ffed3nmw.us-west-2.elasticbeanstalk.com',
     'www.tianru.org',
+    'localhost',
 ]
 
 
