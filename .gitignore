@@ -6,3 +6,6 @@
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# ignore this if change databsae lcoally
+mysite/settings.py
