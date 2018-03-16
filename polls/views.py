@@ -8,9 +8,11 @@ from django.utils import timezone
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.views import generic
+from django.utils import timezone
+import datetime
 
 
-from .models import Question_new, Choice_new
+from .models import Question_new, Choice_new, Flight
 
 
 def index(request):
@@ -79,6 +81,27 @@ class ResultsView(generic.DetailView):  # pylint: disable=too-many-ancestors
     template_name = 'polls/results.html'
 
 
+def search(request):
+    template = loader.get_template('polls/search.html')
+    from_location = request.POST['from']
+    to_location = request.POST['to']
+    leave_date = timezone.now(
+    ) if request.POST['leave'] is None else request.POST['leave']
+    leave_day = getDayFromDate(leave_date)
+    return_date = (timezone.now() + datetime.timedelta(days=1)
+                   ) if request.POST['return'] is None else request.POST['return']
+    return_day = getDayFromDate(return_date)
+    passenger = request.POST['passenger']
+    result = Flight.objects.get(depart_airport=from_location,
+                                arrive_airport=to_location, workday=leave_day)
+    # my_list = {"0": from_location, "1": to_location,
+    #            "2": leave_date, "3": return_date, "4": passenger}
+    context = {
+        'flights': result,
+    }
+    return HttpResponse(template.render(context, request))
+
+
 def vote(request, question_id):
     '''
     For vote page
@@ -100,3 +123,12 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+
+def getDayFromDate(date):
+    '''
+    Get day from date like 2018-03-01
+    '''
+    day = date.split("-")[2]
+    i = int(day)
+    return i

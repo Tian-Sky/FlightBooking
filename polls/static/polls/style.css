@@ -41,20 +41,17 @@
     opacity: 0.9;
     margin-left: 100px;
     margin-right: 100px;
-    height: 200px;
+    height: 250px;
 }
 
-#selection #dropdown .input-group {
+#selection #dropdown {
     padding-top: 30px;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-#selection #dropdown #from {
-    margin-right: 10px;
-}
 
-#selection #dropdown #to {
+#selection #dropdown #arrive {
     margin-right: 10px;
 }
 
@@ -73,8 +70,8 @@
 }
 
 #selection #dropdown #search {
-    width: 150;
-    margin-right: 10px;
+    width: 100;
+    margin-left: 13px;
 }
 
 li a {

@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         # 'NAME': 'Test',
         # 'USER': 'tianqinan',
-        # 'PASSWORD': 'riverroad2017',
+        # 'PASSWORD': '539riverroad2017',
         # 'HOST': 'cs539-tian.cptweiginnye.us-east-1.rds.amazonaws.com',
         # 'PORT': '3306',
         'NAME': 'travel_management',

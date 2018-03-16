@@ -5,8 +5,8 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-from django.db import models
 import datetime
+from django.db import models
 from django.utils import timezone
 
 # Create your models here.
@@ -125,10 +125,10 @@ class Customer(models.Model):
 class Delay(models.Model):
     # Field name made lowercase.
     airline = models.ForeignKey(
-        'Flights', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Airline_ID_related", primary_key=True)
+        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Airline_ID_related", primary_key=True)
     # Field name made lowercase.
     flight = models.ForeignKey(
-        'Flights', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Flight_ID_related")
+        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Flight_ID_related")
     # Field name made lowercase.
     delay_date = models.DateField(
         db_column='Delay_date', blank=True, null=True)
@@ -154,7 +154,7 @@ class FareRestriction(models.Model):
         db_table = 'Fare_Restriction'
 
 
-class Flights(models.Model):
+class Flight(models.Model):
     # Field name made lowercase.
     airline = models.ForeignKey(
         Airline, on_delete=models.CASCADE, db_column='Airline_ID', primary_key=True)
@@ -234,10 +234,10 @@ class ReservationInfo(models.Model):
         db_column='Representative_ID', max_length=10, blank=True, null=True)
     # Field name made lowercase.
     airline = models.ForeignKey(
-        Flights, on_delete=models.CASCADE, db_column='Airline_ID', related_name="airline_related")
+        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="airline_related")
     # Field name made lowercase.
     flight = models.ForeignKey(
-        Flights, on_delete=models.CASCADE, db_column='Flight_ID', related_name="fligth_related")
+        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="fligth_related")
 
     class Meta:
         db_table = 'Reservation_Info'
