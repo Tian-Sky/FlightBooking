@@ -1,12 +1,58 @@
 {% load static %}
+<html>
 
-<!-- <h1>{{ my_list.0 }}</h1>
-<h1>{{ my_list.1 }}</h1>
-<h1>{{ my_list.2 }}</h1>
-<h1>{{ my_list.3 }}</h1>
-<h1>{{ my_list.4 }}</h1> -->
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
 
-<!--<li><a href="/polls/{{ question.id }}/ ">{{ question.question_text }}</a></li>-->
-<li>
-    <a>{{ flights.airline }}</a>
-</li>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+        crossorigin="anonymous">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+        crossorigin="anonymous"></script>
+    <title>Search Result</title>
+</head>
+
+<body>
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/search.css' %}" />
+    <div id="content">
+        <div id="search_table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Airline_ID</th>
+                        <th scope="col">Flight</th>
+                        <th scope="col">Capacity</th>
+                        <th scope="col">Fare</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Depart Time</th>
+                        <th scope="col">Depart Airport</th>
+                        <th scope="col">Arrive Time</th>
+                        <th scope="col">Arrive Airport</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flight in flights %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ flight.airline.airline_id }}</td>
+                        <td>{{ flight.flight_id }}</td>
+                        <td>{{ flight.capacity }}</td>
+                        <td>{{ flight.fare }}</td>
+                        <td>{{ leave_date }}</td>
+                        <td>{{ flight.depart_time }}</td>
+                        <td>{{ flight.depart_airport }}</td>
+                        <td>{{ flight.arrive_time }}</td>
+                        <td>{{ flight.arrive_airport }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+
+</html>

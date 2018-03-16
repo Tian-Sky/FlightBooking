@@ -51,6 +51,9 @@ class Account(models.Model):
     reservation = models.ForeignKey(
         'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
 
+    def __str__(self):
+        return self.account_id
+
     class Meta:
         db_table = 'Account'
         unique_together = (('customer', 'account_id'),)
@@ -63,6 +66,9 @@ class Airline(models.Model):
     # Field name made lowercase.
     airline_name = models.CharField(
         db_column='Airline_name', max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return self.airline_name
 
     class Meta:
         db_table = 'Airline'
@@ -80,6 +86,9 @@ class Airport(models.Model):
     # Field name made lowercase.
     time_zone = models.CharField(
         db_column='Time_zone', max_length=45, blank=True, null=True)
+
+    def __str__(self):
+        return self.airport_name+"("+self.airport_id+")"
 
     class Meta:
         db_table = 'Airport'
@@ -125,10 +134,10 @@ class Customer(models.Model):
 class Delay(models.Model):
     # Field name made lowercase.
     airline = models.ForeignKey(
-        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Airline_ID_related", primary_key=True)
+        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
     # Field name made lowercase.
     flight = models.ForeignKey(
-        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Flight_ID_related")
+        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
     # Field name made lowercase.
     delay_date = models.DateField(
         db_column='Delay_date', blank=True, null=True)
@@ -150,14 +159,17 @@ class FareRestriction(models.Model):
     # Field name made lowercase.
     discount = models.FloatField(db_column='Discount', blank=True, null=True)
 
+    def __str__(self):
+        return "type: "+str(self.type)+" discount: "+str(self.discount)
+
     class Meta:
         db_table = 'Fare_Restriction'
 
 
 class Flight(models.Model):
     # Field name made lowercase.
-    airline = models.ForeignKey(
-        Airline, on_delete=models.CASCADE, db_column='Airline_ID', primary_key=True)
+    airline = models.OneToOneField(
+        Airline, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Flight_Airline", primary_key=True)
     # Field name made lowercase.
     flight_id = models.IntegerField(db_column='Flight_ID')
     # Field name made lowercase.
@@ -171,13 +183,13 @@ class Flight(models.Model):
         db_column='Depart_time', blank=True, null=True)
     # Field name made lowercase.
     depart_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Depart_Airport_related", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Flight_Depart_Airport", blank=True, null=True)
     # Field name made lowercase.
     arrive_time = models.TimeField(
         db_column='Arrive_time', blank=True, null=True)
     # Field name made lowercase.
     arrive_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Arrive_Airport_related", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Flight_Arrive_Airport", blank=True, null=True)
     # Field name made lowercase. Field renamed because of name conflict.
     fare_0 = models.ForeignKey(
         FareRestriction, on_delete=models.CASCADE, db_column='Fare_ID', blank=True, null=True)
@@ -234,10 +246,10 @@ class ReservationInfo(models.Model):
         db_column='Representative_ID', max_length=10, blank=True, null=True)
     # Field name made lowercase.
     airline = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="airline_related")
+        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Reserve_Airline")
     # Field name made lowercase.
     flight = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="fligth_related")
+        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="Reserve_Flight")
 
     class Meta:
         db_table = 'Reservation_Info'

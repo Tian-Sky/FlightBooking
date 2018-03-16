@@ -19,15 +19,15 @@ class FareRestrictionAdmin(admin.ModelAdmin):
 
 
 class FlightAdmin(admin.ModelAdmin):
-    fields = ['airline', 'flight_id', 'capacity', 'fare', 'workday', 'depart_time',
-              'depart_airport', 'arrive_time', 'arrive_airport', 'fare_0']
     list_display = ('airline', 'flight_id', 'capacity', 'fare', 'workday', 'depart_time',
                     'depart_airport', 'arrive_time', 'arrive_airport', 'fare_0')
+    list_display_links = None
 
 
 admin.site.register(Airport, AirportAdmin)
 admin.site.register(FareRestriction, FareRestrictionAdmin)
 admin.site.register(Flight, FlightAdmin)
+admin.site.register(Airline)
 
 admin.site.register(Question_new)
 admin.site.register(Choice_new)
