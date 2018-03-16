@@ -35,30 +35,6 @@ class Choice_new(models.Model):
 # Project models-------
 
 
-class Account(models.Model):
-    # Field name made lowercase.
-    customer = models.ForeignKey(
-        'Customer', on_delete=models.CASCADE, db_column='Customer_ID', primary_key=True)
-    # Field name made lowercase.
-    account_id = models.IntegerField(db_column='Account_ID')
-    # Field name made lowercase.
-    create_date = models.DateField(
-        db_column='Create_date', blank=True, null=True)
-    # Field name made lowercase.
-    credit_card = models.IntegerField(
-        db_column='Credit_card', blank=True, null=True)
-    # Field name made lowercase.
-    reservation = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
-
-    def __str__(self):
-        return self.account_id
-
-    class Meta:
-        db_table = 'Account'
-        unique_together = (('customer', 'account_id'),)
-
-
 class Airline(models.Model):
     # Field name made lowercase.
     airline_id = models.CharField(
@@ -81,7 +57,7 @@ class Airport(models.Model):
     # Field name made lowercase.
     airport_name = models.CharField(
         db_column='Airport_name', max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=45, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
     country = models.CharField(max_length=45, blank=True, null=True)
     # Field name made lowercase.
     time_zone = models.CharField(
@@ -108,7 +84,7 @@ class Customer(models.Model):
         db_column='Address', max_length=45, blank=True, null=True)
     # Field name made lowercase.
     city = models.CharField(
-        db_column='City', max_length=10, blank=True, null=True)
+        db_column='City', max_length=20, blank=True, null=True)
     # Field name made lowercase.
     state = models.CharField(
         db_column='State', max_length=10, blank=True, null=True)
@@ -119,7 +95,7 @@ class Customer(models.Model):
         db_column='Phone', max_length=11, blank=True, null=True)
     # Field name made lowercase.
     email = models.CharField(
-        db_column='Email', max_length=20, blank=True, null=True)
+        db_column='Email', max_length=45, blank=True, null=True)
     # Field name made lowercase.
     password = models.CharField(
         db_column='Password', max_length=20, blank=True, null=True)
@@ -134,10 +110,10 @@ class Customer(models.Model):
 class Delay(models.Model):
     # Field name made lowercase.
     airline = models.ForeignKey(
-        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
+        'Flights', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
     # Field name made lowercase.
     flight = models.ForeignKey(
-        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
+        'Flights', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
     # Field name made lowercase.
     delay_date = models.DateField(
         db_column='Delay_date', blank=True, null=True)
@@ -166,7 +142,7 @@ class FareRestriction(models.Model):
         db_table = 'Fare_Restriction'
 
 
-class Flight(models.Model):
+class Flights(models.Model):
     # Field name made lowercase.
     airline = models.OneToOneField(
         Airline, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Flight_Airline", primary_key=True)
@@ -197,6 +173,37 @@ class Flight(models.Model):
     class Meta:
         db_table = 'Flights'
         unique_together = (('airline', 'flight_id'),)
+
+
+class Account(models.Model):
+    # Field name made lowercase.
+    customer = models.ForeignKey(
+        'Customer', on_delete=models.CASCADE, db_column='Customer_ID', primary_key=True)
+    # Field name made lowercase.
+    account_id = models.IntegerField(db_column='Account_ID')
+    # Field name made lowercase.
+    create_date = models.DateField(
+        db_column='Create_date', blank=True, null=True)
+    # Field name made lowercase.
+    credit_card = models.CharField(
+        db_column='Credit_card', max_length=45, blank=True, null=True)
+    # Field name made lowercase.
+    reservation = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
+    # Field name made lowercase.
+    airline = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, related_name="Account_Airline", db_column='Airline_ID', blank=True, null=True)
+    # Field name made lowercase.
+    flight = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, related_name="Account_flight", db_column='Flight_ID', blank=True, null=True)
+
+    def __str__(self):
+        return self.account_id
+
+    class Meta:
+        db_table = 'Account'
+        unique_together = (
+            ('customer', 'account_id', 'reservation', 'airline', 'flight'),)
 
 
 class ReservationFlight(models.Model):
@@ -246,10 +253,12 @@ class ReservationInfo(models.Model):
         db_column='Representative_ID', max_length=10, blank=True, null=True)
     # Field name made lowercase.
     airline = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Reserve_Airline")
+        Flights, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Reserve_Airline")
     # Field name made lowercase.
     flight = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="Reserve_Flight")
+        Flights, on_delete=models.CASCADE, db_column='Flight_ID', related_name="Reserve_Flight")
 
     class Meta:
         db_table = 'Reservation_Info'
+        unique_together = (
+            ('reservation_id', 'airline', 'flight'),)

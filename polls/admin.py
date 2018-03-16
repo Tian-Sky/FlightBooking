@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from .models import Question_new, Choice_new
 from .models import Airport, Account, Airline, Customer, Delay, FareRestriction
-from .models import Flight, ReservationFlight, ReservationInfo
+from .models import Flights, ReservationFlight, ReservationInfo
 
 
 class AirportAdmin(admin.ModelAdmin):
@@ -26,7 +26,7 @@ class FlightAdmin(admin.ModelAdmin):
 
 admin.site.register(Airport, AirportAdmin)
 admin.site.register(FareRestriction, FareRestrictionAdmin)
-admin.site.register(Flight, FlightAdmin)
+admin.site.register(Flights, FlightAdmin)
 admin.site.register(Airline)
 
 admin.site.register(Question_new)

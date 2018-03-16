@@ -12,7 +12,7 @@ from django.utils import timezone
 import datetime
 
 
-from .models import Question_new, Choice_new, Flight, Airline
+from .models import Question_new, Choice_new, Flights, Airline
 
 
 def index(request):
@@ -95,8 +95,8 @@ def search(request):
                    ) if request.POST['return'] is None else request.POST['return']
     return_day = getDayFromDate(return_date)
     passenger = request.POST['passenger']
-    result = Flight.objects.filter(depart_airport=from_location,
-                                   arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
+    result = Flights.objects.filter(depart_airport=from_location,
+                                    arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
     context = {
         'flights': result,
         'leave_date': leave_date,

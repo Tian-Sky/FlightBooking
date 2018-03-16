@@ -109,6 +109,8 @@ You can find *clear* AWS official tutorial [here](https://docs.aws.amazon.com/el
 
 You need first to install Elastic Beanstalk Command Line Interface (EB CLI). [Tutorial here](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html).
 
+It's highly possible that you use Python 3 for Django, so you also need to change python2 to python3 when set environment on eb.
+
 When you create .ebextensions/django.config, make sure to change the WSGIPath to YourProjectName/wsgi.py, otherwise it won't work.
 
 If you use git as version control for your project, you must commit before you run eb deploy. The new changes work only after commit.
