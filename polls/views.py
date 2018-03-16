@@ -82,6 +82,9 @@ class ResultsView(generic.DetailView):  # pylint: disable=too-many-ancestors
 
 
 def search(request):
+    '''
+    Logic to search flight
+    '''
     template = loader.get_template('polls/search.html')
     from_location = request.POST['from']
     to_location = request.POST['to']
