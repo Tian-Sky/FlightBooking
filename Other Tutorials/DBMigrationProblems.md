@@ -55,3 +55,28 @@ python manage.py sqlmigrate polls 0001
 ```
 
 Now add content back to polls/admin.py, include your new models in admin.py. You can see it on localhost:8080/admin page now.
+
+## Problems with exist table before migration
+
+I met another problem when migrating. Before migrate, as I followed the official tutorial, I have two models called Question and Choice under polls/model.py, and I already did migration once. Then I ceate a new Database in mysql, and try to migrate with that new database. 
+
+The problem is the original table Question and Choice won't be created in new database, even though the new models do have tables created in the new database. The following comman can fix this problem.
+
+1. Drop tables. (If you start with a new database, you can ignore this)
+2. comment-out the problem models in model.py(in my example, it is Question and Choice). You probably need to comment-out other places if you import the model in other files. 
+3. Run 
+
+	```
+	python manage.py makemigrations
+	python manage.py migrate --fake
+	```
+
+4. Comment-in all places you comment-out before
+5. Run
+
+	```
+	python manage.py makemigrations
+	python manage.py migrate
+	``` 
+	
+That's it. You should have the table created in your database now.
