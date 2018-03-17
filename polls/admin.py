@@ -6,14 +6,11 @@ from .models import Flight, ReservationFlight, ReservationInfo
 
 
 class AirportAdmin(admin.ModelAdmin):
-    fields = ['airport_id', 'airport_name',
-              'city', 'country', 'time_zone']
     list_display = ('airport_id', 'airport_name',
                     'city', 'country', 'time_zone')
 
 
 class FareRestrictionAdmin(admin.ModelAdmin):
-    fields = ['fare_id', 'type', 'discount']
     list_display = ('fare_id', 'type', 'discount')
 
 
@@ -23,7 +20,17 @@ class FlightAdmin(admin.ModelAdmin):
     list_display_links = None
 
 
+class AirlineAdmin(admin.ModelAdmin):
+    list_display = ('airline_id', 'airline_name')
+
+
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ('customer_id', 'first_name', 'last_name', 'address', 'city', 'state',
+                    'zip', 'phone', 'email', 'password', 'preference')
+
+
 admin.site.register(Airport, AirportAdmin)
 admin.site.register(FareRestriction, FareRestrictionAdmin)
 admin.site.register(Flight, FlightAdmin)
-admin.site.register(Airline)
+admin.site.register(Airline, AirlineAdmin)
+admin.site.register(Customer, CustomerAdmin)

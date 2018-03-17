@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.utils import timezone
 import datetime
-from .models import Flight, Airline
+from .models import Flight, Airline, Customer
 # from .models import Question_new, Choice_new
 
 
@@ -45,6 +45,15 @@ def search(request):
         'flights': result,
         'leave_date': leave_date,
         'return_date': return_date,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def customer(request):
+    template = loader.get_template('polls/customer.html')
+    cus = Customer.objects.get(customer_id=19)
+    context = {
+        'customer': cus,
     }
     return HttpResponse(template.render(context, request))
 
