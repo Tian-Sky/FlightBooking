@@ -5,34 +5,35 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-import datetime
 from django.db import models
-from django.utils import timezone
-
-# Create your models here.
 
 
-class Question_new(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
+class Account(models.Model):
+    # Field name made lowercase.
+    customer = models.OneToOneField(
+        'Customer', on_delete=models.CASCADE, db_column='Customer_ID', primary_key=True)
+    # Field name made lowercase.
+    account_id = models.IntegerField(db_column='Account_ID')
+    # Field name made lowercase.
+    reservation = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
+    # Field name made lowercase.
+    airline = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Account_Airline")
+    # Field name made lowercase.
+    flight = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Account_Flight")
+    # Field name made lowercase.
+    create_date = models.DateField(
+        db_column='Create_date', blank=True, null=True)
+    # Field name made lowercase.
+    credit_card = models.CharField(
+        db_column='Credit_card', max_length=45, blank=True, null=True)
 
-    def __str__(self):
-        return self.question_text
-
-    def was_published_recently(self):
-        now = timezone.now()
-        return now - datetime.timedelta(days=1) <= self.pub_date <= now
-
-
-class Choice_new(models.Model):
-    question = models.ForeignKey(Question_new, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.choice_text
-
-# Project models-------
+    class Meta:
+        db_table = 'Account'
+        unique_together = (
+            ('customer', 'account_id', 'reservation', 'airline', 'flight'),)
 
 
 class Airline(models.Model):
@@ -43,9 +44,6 @@ class Airline(models.Model):
     airline_name = models.CharField(
         db_column='Airline_name', max_length=100, blank=True, null=True)
 
-    def __str__(self):
-        return self.airline_name
-
     class Meta:
         db_table = 'Airline'
 
@@ -53,18 +51,15 @@ class Airline(models.Model):
 class Airport(models.Model):
     # Field name made lowercase.
     airport_id = models.CharField(
-        db_column='Airport_ID', primary_key=True, max_length=3)
+        db_column='Airport_ID', primary_key=True, max_length=4)
     # Field name made lowercase.
     airport_name = models.CharField(
         db_column='Airport_name', max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=45, blank=True, null=True)
     country = models.CharField(max_length=45, blank=True, null=True)
     # Field name made lowercase.
     time_zone = models.CharField(
         db_column='Time_zone', max_length=45, blank=True, null=True)
-
-    def __str__(self):
-        return self.airport_name+"("+self.airport_id+")"
 
     class Meta:
         db_table = 'Airport'
@@ -109,11 +104,11 @@ class Customer(models.Model):
 
 class Delay(models.Model):
     # Field name made lowercase.
-    airline = models.ForeignKey(
-        'Flights', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
+    airline = models.OneToOneField(
+        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
     # Field name made lowercase.
     flight = models.ForeignKey(
-        'Flights', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
+        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
     # Field name made lowercase.
     delay_date = models.DateField(
         db_column='Delay_date', blank=True, null=True)
@@ -135,17 +130,14 @@ class FareRestriction(models.Model):
     # Field name made lowercase.
     discount = models.FloatField(db_column='Discount', blank=True, null=True)
 
-    def __str__(self):
-        return "type: "+str(self.type)+" discount: "+str(self.discount)
-
     class Meta:
         db_table = 'Fare_Restriction'
 
 
-class Flights(models.Model):
+class Flight(models.Model):
     # Field name made lowercase.
     airline = models.OneToOneField(
-        Airline, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Flight_Airline", primary_key=True)
+        Airline, on_delete=models.CASCADE, db_column='Airline_ID', primary_key=True)
     # Field name made lowercase.
     flight_id = models.IntegerField(db_column='Flight_ID')
     # Field name made lowercase.
@@ -159,56 +151,25 @@ class Flights(models.Model):
         db_column='Depart_time', blank=True, null=True)
     # Field name made lowercase.
     depart_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Flight_Depart_Airport", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Flight_DepartAirport", blank=True, null=True)
     # Field name made lowercase.
     arrive_time = models.TimeField(
         db_column='Arrive_time', blank=True, null=True)
     # Field name made lowercase.
     arrive_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Flight_Arrive_Airport", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Flight_ArriveAirport", blank=True, null=True)
     # Field name made lowercase. Field renamed because of name conflict.
     fare_0 = models.ForeignKey(
         FareRestriction, on_delete=models.CASCADE, db_column='Fare_ID', blank=True, null=True)
 
     class Meta:
-        db_table = 'Flights'
+        db_table = 'Flight'
         unique_together = (('airline', 'flight_id'),)
-
-
-class Account(models.Model):
-    # Field name made lowercase.
-    customer = models.ForeignKey(
-        'Customer', on_delete=models.CASCADE, db_column='Customer_ID', primary_key=True)
-    # Field name made lowercase.
-    account_id = models.IntegerField(db_column='Account_ID')
-    # Field name made lowercase.
-    create_date = models.DateField(
-        db_column='Create_date', blank=True, null=True)
-    # Field name made lowercase.
-    credit_card = models.CharField(
-        db_column='Credit_card', max_length=45, blank=True, null=True)
-    # Field name made lowercase.
-    reservation = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
-    # Field name made lowercase.
-    airline = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, related_name="Account_Airline", db_column='Airline_ID', blank=True, null=True)
-    # Field name made lowercase.
-    flight = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, related_name="Account_flight", db_column='Flight_ID', blank=True, null=True)
-
-    def __str__(self):
-        return self.account_id
-
-    class Meta:
-        db_table = 'Account'
-        unique_together = (
-            ('customer', 'account_id', 'reservation', 'airline', 'flight'),)
 
 
 class ReservationFlight(models.Model):
     # Field name made lowercase.
-    reservation = models.ForeignKey(
+    reservation = models.OneToOneField(
         'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID', primary_key=True)
     # Field name made lowercase.
     airline_id = models.CharField(db_column='Airline_ID', max_length=5)
@@ -238,6 +199,12 @@ class ReservationInfo(models.Model):
     reservation_id = models.AutoField(
         db_column='Reservation_ID', primary_key=True)
     # Field name made lowercase.
+    airline = models.ForeignKey(
+        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="ReservationInfo_Airline")
+    # Field name made lowercase.
+    flight = models.ForeignKey(
+        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="ReservationalInfo_Flight")
+    # Field name made lowercase.
     order_date = models.DateField(
         db_column='Order_date', blank=True, null=True)
     # Field name made lowercase.
@@ -251,14 +218,7 @@ class ReservationInfo(models.Model):
     # Field name made lowercase.
     representative_id = models.CharField(
         db_column='Representative_ID', max_length=10, blank=True, null=True)
-    # Field name made lowercase.
-    airline = models.ForeignKey(
-        Flights, on_delete=models.CASCADE, db_column='Airline_ID', related_name="Reserve_Airline")
-    # Field name made lowercase.
-    flight = models.ForeignKey(
-        Flights, on_delete=models.CASCADE, db_column='Flight_ID', related_name="Reserve_Flight")
 
     class Meta:
         db_table = 'Reservation_Info'
-        unique_together = (
-            ('reservation_id', 'airline', 'flight'),)
+        unique_together = (('reservation_id', 'airline', 'flight'),)

@@ -81,4 +81,4 @@ The problem is the original table Question and Choice won't be created in new da
 	
 That's it. You should have the table created in your database now.
 
-This tutorial [here](https://docs.djangoproject.com/en/1.8/topics/migrations/#upgrading-from-south) may also be helpful.
+This tutorial [here](https://simpleisbetterthancomplex.com/tutorial/2016/07/26/how-to-reset-migrations.html) may also be helpful.

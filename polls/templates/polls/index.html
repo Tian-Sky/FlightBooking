@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" /> {% if latest_question_list %}
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
     <div id="header">
         <h2>
             <div>
@@ -31,16 +31,6 @@
     </div>
     <div style="clear: both;"></div>
     <div id="selection">
-        <div>
-            <ul>
-                {% for question in latest_question_list %}
-                <!--<li><a href="/polls/{{ question.id }}/ ">{{ question.question_text }}</a></li>-->
-                <li>
-                    <a href="{% url 'polls:detail' question.id %} ">{{ question.question_text }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
         <div>
             <h1 id="welcome">Welcome to SuperFlight, the best website for flight ticket</h1>
         </div>
@@ -89,9 +79,6 @@
             </div>
         </form>
     </div>
-    {% else %}
-    <p>No polls are available.</p>
-    {% endif %}
 </body>
 
 <!--Footer-->
