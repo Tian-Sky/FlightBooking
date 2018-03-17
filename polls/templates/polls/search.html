@@ -23,9 +23,8 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Airline_ID</th>
-                        <th scope="col">Flight</th>
                         <th scope="col">Capacity</th>
-                        <th scope="col">Fare</th>
+                        <th scope="col">Price</th>
                         <th scope="col">Date</th>
                         <th scope="col">Depart Time</th>
                         <th scope="col">Depart Airport</th>
@@ -37,8 +36,7 @@
                     {% for flight in flights %}
                     <tr>
                         <th scope="row">{{ forloop.counter }}</th>
-                        <td>{{ flight.airline.airline_id }}</td>
-                        <td>{{ flight.flight_id }}</td>
+                        <td>{{ flight.airline.airline_name }}</td>
                         <td>{{ flight.capacity }}</td>
                         <td>{{ flight.fare }}</td>
                         <td>{{ leave_date }}</td>
