@@ -16,38 +16,41 @@
 
 <body>
     <link rel="stylesheet" type="text/css" href="{% static 'polls/search.css' %}" />
-    <div id="content">
-        <div id="search_table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Airline_ID</th>
-                        <th scope="col">Capacity</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Depart Time</th>
-                        <th scope="col">Depart Airport</th>
-                        <th scope="col">Arrive Time</th>
-                        <th scope="col">Arrive Airport</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for flight in flights %}
-                    <tr>
-                        <th scope="row">{{ forloop.counter }}</th>
-                        <td>{{ flight.airline.airline_name }}</td>
-                        <td>{{ flight.capacity }}</td>
-                        <td>{{ flight.fare }}</td>
-                        <td>{{ leave_date }}</td>
-                        <td>{{ flight.depart_time }}</td>
-                        <td>{{ flight.depart_airport }}</td>
-                        <td>{{ flight.arrive_time }}</td>
-                        <td>{{ flight.arrive_airport }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div id="body">
+        <div id="empty"></div>
+        <div id="content">
+            <div id="search_table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Airline_ID</th>
+                            <th scope="col">Capacity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Depart Time</th>
+                            <th scope="col">Depart Airport</th>
+                            <th scope="col">Arrive Time</th>
+                            <th scope="col">Arrive Airport</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flight in flights %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ flight.airline.airline_name }}</td>
+                            <td>{{ flight.capacity }}</td>
+                            <td>{{ flight.fare }}</td>
+                            <td>{{ leave_date }}</td>
+                            <td>{{ flight.depart_time }}</td>
+                            <td>{{ flight.depart_airport }}</td>
+                            <td>{{ flight.arrive_time }}</td>
+                            <td>{{ flight.arrive_airport }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>

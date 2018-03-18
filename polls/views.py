@@ -53,7 +53,16 @@ def customer(request):
     template = loader.get_template('polls/customer.html')
     cus = Customer.objects.get(customer_id=19)
     context = {
-        'customer': cus,
+        'customers': cus,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def manager(request):
+    template = loader.get_template('polls/manager_index.html')
+    cus = Customer.objects.order_by('customer_id')
+    context = {
+        'customers': cus,
     }
     return HttpResponse(template.render(context, request))
 
