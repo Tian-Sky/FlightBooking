@@ -40,6 +40,7 @@ def search(request):
     return_day = getDayFromDate(return_date)
     # result = Flight.objects.filter(depart_airport=from_location,
     #                                arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
+    # need sql
     result = Flight.objects.filter(depart_airport=from_location,
                                    arrive_airport=to_location, workday=(leave_day % 2),)
     context = {
