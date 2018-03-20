@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'django-env.v6ffed3nmw.us-west-2.elasticbeanstalk.com',
+    'django-project.g3s8hrkg93.us-west-2.elasticbeanstalk.com',
+    'django-final.sphypfk4x7.us-west-2.elasticbeanstalk.com',
     'www.tianru.org',
     'localhost',
 ]
@@ -83,16 +85,16 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'Test',
-        # 'USER': 'tianqinan',
-        # 'PASSWORD': '539riverroad2017',
-        # 'HOST': 'cs539-tian.cptweiginnye.us-east-1.rds.amazonaws.com',
-        # 'PORT': '3306',
-        'NAME': 'travel_management',
-        'USER': 'tian',
-        'PASSWORD': '8269287',
-        'HOST': 'localhost',
+        'NAME': 'travel_management_2',
+        'USER': 'tianqinan',
+        'PASSWORD': 'tianqinan',
+        'HOST': 'cs539-tian.cptweiginnye.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
+        # 'NAME': 'travel',
+        # 'USER': 'tian',
+        # 'PASSWORD': '8269287',
+        # 'HOST': 'localhost',
+        # 'PORT': '3306',
     }
 }
 
