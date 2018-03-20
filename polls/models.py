@@ -10,19 +10,13 @@ from django.db import models
 
 class Account(models.Model):
     # Field name made lowercase.
-    customer = models.OneToOneField(
+    customer = models.ForeignKey(
         'Customer', on_delete=models.CASCADE, db_column='Customer_ID', primary_key=True)
     # Field name made lowercase.
     account_id = models.IntegerField(db_column='Account_ID')
     # Field name made lowercase.
     reservation = models.ForeignKey(
         'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID')
-    # Field name made lowercase.
-    airline = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Account_Airline")
-    # Field name made lowercase.
-    flight = models.ForeignKey(
-        'ReservationInfo', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Account_Flight")
     # Field name made lowercase.
     create_date = models.DateField(
         db_column='Create_date', blank=True, null=True)
@@ -32,8 +26,7 @@ class Account(models.Model):
 
     class Meta:
         db_table = 'Account'
-        unique_together = (
-            ('customer', 'account_id', 'reservation', 'airline', 'flight'),)
+        unique_together = (('customer', 'account_id', 'reservation'),)
 
 
 class Airline(models.Model):
@@ -104,11 +97,8 @@ class Customer(models.Model):
 
 class Delay(models.Model):
     # Field name made lowercase.
-    airline = models.OneToOneField(
-        'Flight', on_delete=models.CASCADE, db_column='Airline_ID', related_name="Delay_Airline", primary_key=True)
-    # Field name made lowercase.
-    flight = models.ForeignKey(
-        'Flight', on_delete=models.CASCADE, db_column='Flight_ID', related_name="Delay_Flight")
+    fid = models.ForeignKey(
+        'Flight', on_delete=models.CASCADE, db_column='FID', primary_key=True)
     # Field name made lowercase.
     delay_date = models.DateField(
         db_column='Delay_date', blank=True, null=True)
@@ -118,7 +108,6 @@ class Delay(models.Model):
 
     class Meta:
         db_table = 'Delay'
-        unique_together = (('airline', 'flight'),)
 
 
 class FareRestriction(models.Model):
@@ -136,8 +125,10 @@ class FareRestriction(models.Model):
 
 class Flight(models.Model):
     # Field name made lowercase.
-    airline = models.OneToOneField(
-        Airline, on_delete=models.CASCADE, db_column='Airline_ID', primary_key=True)
+    fid = models.AutoField(db_column='FID', primary_key=True)
+    # Field name made lowercase.
+    airline = models.ForeignKey(
+        Airline, on_delete=models.CASCADE, db_column='Airline_ID')
     # Field name made lowercase.
     flight_id = models.IntegerField(db_column='Flight_ID')
     # Field name made lowercase.
@@ -151,30 +142,41 @@ class Flight(models.Model):
         db_column='Depart_time', blank=True, null=True)
     # Field name made lowercase.
     depart_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Flight_DepartAirport", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Depart_Airport', related_name="Flight_Depart_Airport", blank=True, null=True)
     # Field name made lowercase.
     arrive_time = models.TimeField(
         db_column='Arrive_time', blank=True, null=True)
     # Field name made lowercase.
     arrive_airport = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Flight_ArriveAirport", blank=True, null=True)
+        Airport, on_delete=models.CASCADE, db_column='Arrive_Airport', related_name="Flight_Arrive_Airport", blank=True, null=True)
     # Field name made lowercase. Field renamed because of name conflict.
     fare_0 = models.ForeignKey(
         FareRestriction, on_delete=models.CASCADE, db_column='Fare_ID', blank=True, null=True)
 
     class Meta:
         db_table = 'Flight'
-        unique_together = (('airline', 'flight_id'),)
+
+
+class RfRelation(models.Model):
+    # Field name made lowercase.
+    reservation = models.ForeignKey(
+        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID', primary_key=True)
+    # Field name made lowercase.
+    fid = models.ForeignKey(Flight, on_delete=models.CASCADE, db_column='FID')
+    leave_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'RF_Relation'
+        unique_together = (('reservation', 'fid'),)
 
 
 class ReservationFlight(models.Model):
     # Field name made lowercase.
-    reservation = models.OneToOneField(
-        'ReservationInfo', on_delete=models.CASCADE, db_column='Reservation_ID', primary_key=True)
+    reservation = models.ForeignKey(
+        RfRelation, on_delete=models.CASCADE, db_column='Reservation_ID', primary_key=True)
     # Field name made lowercase.
-    airline_id = models.CharField(db_column='Airline_ID', max_length=5)
-    # Field name made lowercase.
-    flight_id = models.IntegerField(db_column='Flight_ID')
+    fid = models.ForeignKey(
+        RfRelation, on_delete=models.CASCADE, related_name="Reservation_Flight_ID", db_column='FID')
     # Field name made lowercase.
     p_name = models.CharField(db_column='P_name', max_length=20)
     # Field name made lowercase.
@@ -190,20 +192,13 @@ class ReservationFlight(models.Model):
 
     class Meta:
         db_table = 'Reservation_Flight'
-        unique_together = (
-            ('reservation', 'airline_id', 'flight_id', 'p_name'),)
+        unique_together = (('reservation', 'fid', 'p_name'),)
 
 
 class ReservationInfo(models.Model):
     # Field name made lowercase.
     reservation_id = models.AutoField(
         db_column='Reservation_ID', primary_key=True)
-    # Field name made lowercase.
-    airline = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Airline_ID', related_name="ReservationInfo_Airline")
-    # Field name made lowercase.
-    flight = models.ForeignKey(
-        Flight, on_delete=models.CASCADE, db_column='Flight_ID', related_name="ReservationalInfo_Flight")
     # Field name made lowercase.
     order_date = models.DateField(
         db_column='Order_date', blank=True, null=True)
@@ -221,4 +216,3 @@ class ReservationInfo(models.Model):
 
     class Meta:
         db_table = 'Reservation_Info'
-        unique_together = (('reservation_id', 'airline', 'flight'),)

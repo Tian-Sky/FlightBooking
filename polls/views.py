@@ -1,6 +1,5 @@
 '''Views for app polls'''
 from django.shortcuts import render
-
 # Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
@@ -32,15 +31,17 @@ def search(request):
     template = loader.get_template('polls/search.html')
     from_location = request.POST['from']
     to_location = request.POST['to']
+    passenger = request.POST['passenger']
     leave_date = timezone.now(
     ) if request.POST['leave'] is None else request.POST['leave']
     leave_day = getDayFromDate(leave_date)
     return_date = (timezone.now() + datetime.timedelta(days=1)
                    ) if request.POST['return'] is None else request.POST['return']
     return_day = getDayFromDate(return_date)
-    passenger = request.POST['passenger']
+    # result = Flight.objects.filter(depart_airport=from_location,
+    #                                arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
     result = Flight.objects.filter(depart_airport=from_location,
-                                   arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
+                                   arrive_airport=to_location, workday=(leave_day % 2),)
     context = {
         'flights': result,
         'leave_date': leave_date,
