@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     'django-env.v6ffed3nmw.us-west-2.elasticbeanstalk.com',
     'django-project.g3s8hrkg93.us-west-2.elasticbeanstalk.com',
     'django-final.sphypfk4x7.us-west-2.elasticbeanstalk.com',
+    'django-cs539.rgfu3mu2dq.us-west-2.elasticbeanstalk.com',
     'www.tianru.org',
     'localhost',
 ]
