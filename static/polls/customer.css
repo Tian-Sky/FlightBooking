@@ -1,0 +1,51 @@
+body {
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.3),
+        rgba(0, 0, 0, 0)
+      ),white url("images/flight_01.jpg") no-repeat;
+    background-size: cover;
+    opacity: 0.8;
+    width: 100%;
+}
+
+
+#head {
+    padding-top: 40px;
+    padding-left: 60px;
+    padding-bottom: 40px;
+    color: white
+}
+
+#mytable {
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    height: 80vh;
+    overflow: auto;
+    background-color: white;
+    opacity: 0.85;
+}
+
+#mynav {
+    margin-left: 40px;
+    margin-right: 40px;
+    padding-top: 10px;
+}
+
+#mycontent {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+#current-reservation {
+    color: black;
+    font-weight: bold;
+}
+
+#myprofile {
+    padding-top: 10px;
+    color: black;
+    font-weight: 600;
+    overflow: auto;
+    overflow-x: hidden;
+}
