@@ -57,6 +57,9 @@ class Airport(models.Model):
     class Meta:
         db_table = 'Airport'
 
+    def __str__(self):
+        return self.airport_name+"("+self.airport_id+")"
+
 
 class Customer(models.Model):
     # Field name made lowercase.

@@ -27,13 +27,13 @@
             <div id="direct flight">
                 {% if direct_flight %}
                 <div id="search_table">
-                    <table id="example1" class="table table-striped table-bordered" data-page-length="6" style="width:100%">
+                    <table id="example1" class="table table-striped table-bordered" data-page-length="4" style="width:100%">
                         <h3 style="text-align: center">Direct-flight results</h3>
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Airline_ID</th>
-                                <th scope="col">Capacity</th>
+                                <th scope="col">Flgiht_ID</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Depart Time</th>
@@ -47,9 +47,9 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ flight.airline.airline_name }}</td>
-                                <td>{{ flight.capacity }}</td>
+                                <td>{{ flight.flight_id }}</td>
                                 <td>{{ flight.fare }}</td>
-                                <td>{{ leave_date }}</td>
+                                <td>{{ flight.workday }}</td>
                                 <td>{{ flight.depart_time }}</td>
                                 <td>{{ flight.depart_airport }}</td>
                                 <td>{{ flight.arrive_time }}</td>
@@ -67,11 +67,11 @@
                 {% if one_stop_flight %}
                 <div id="search_table">
                     <h3 style="text-align: center; padding-top: 10px">One-stop results</h3>
-                    <table id="example2" class="table table-striped table-bordered" data-page-length="6" style="width:100%">
+                    <table id="example2" class="table table-striped table-bordered" data-page-length="4" style="width:100%">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Airline_ID</th>
+                                <th scope="col">Airline</th>
                                 <th scope="col">Flgiht_ID</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">Date</th>
@@ -88,22 +88,22 @@
                                 <td>{{ flight.0 }}</td>
                                 <td>{{ flight.1 }}</td>
                                 <td>{{ flight.2 }}</td>
-                                <td>{{ leave_date }}</td>
                                 <td>{{ flight.3 }}</td>
                                 <td>{{ flight.4 }}</td>
                                 <td>{{ flight.5 }}</td>
                                 <td>{{ flight.6 }}</td>
+                                <td>{{ flight.7 }}</td>
                             </tr>
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td>{{ flight.7 }}</td>
                                 <td>{{ flight.8 }}</td>
                                 <td>{{ flight.9 }}</td>
-                                <td>{{ leave_date }}</td>
                                 <td>{{ flight.10 }}</td>
                                 <td>{{ flight.11 }}</td>
                                 <td>{{ flight.12 }}</td>
                                 <td>{{ flight.13 }}</td>
+                                <td>{{ flight.14 }}</td>
+                                <td>{{ flight.15 }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -118,7 +118,9 @@
 
 <script>
     $(document).ready(function () {
-        $('#example1').DataTable();
+        $('#example1').DataTable({
+            "order": [[4, "asc"]]
+        });
     });
     $(document).ready(function () {
         $('#example2').DataTable();

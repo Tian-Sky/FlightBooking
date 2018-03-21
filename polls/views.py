@@ -9,8 +9,9 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.utils import timezone
 from django.db import connection
+from django.db.models import Q
 import datetime
-from .models import Flight, Airline, Customer
+from .models import Flight, Airline, Customer, Airport
 # from .models import Question_new, Choice_new
 
 
@@ -31,21 +32,46 @@ def search(request):
     '''
     template = loader.get_template('polls/search.html')
     from_location = request.POST['from']
-    print(type(from_location))
     to_location = request.POST['to']
     passenger = request.POST['passenger']
+
     leave_date = timezone.now(
     ) if request.POST['leave'] is None else request.POST['leave']
+    leave_date_tom = getTomorrowDate(leave_date)
     leave_day = getDayFromDate(leave_date)
+
     return_date = (timezone.now() + datetime.timedelta(days=1)
                    ) if request.POST['return'] is None else request.POST['return']
     return_day = getDayFromDate(return_date)
-    # result = Flight.objects.filter(depart_airport=from_location,
-    #                                arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
-    direct_result = Flight.objects.filter(depart_airport=from_location,
-                                          arrive_airport=to_location, workday=(leave_day % 2),)
-    one_stop_result = one_stop_flight(
+
+    # Get direct flight
+    direct_result = Flight.objects.filter(Q(depart_airport=from_location) &
+                                          Q(arrive_airport=to_location) & (Q(workday=((leave_day+1) % 2)) | Q(workday=(leave_day % 2))),)
+    for d_f in direct_result:
+        if d_f.workday == leave_day % 2:
+            d_f.workday = leave_date
+        else:
+            d_f.workday = leave_date_tom
+
+    # Get one_stop flight
+    one_stop = one_stop_flight(
         from_location, to_location, leave_day % 2, (leave_day+1) % 2)
+    one_stop_result = set()
+    for f in one_stop:
+        print(f)
+        airline1 = Airline.objects.get(airline_id=f[0]).airline_name
+        airline2 = Airline.objects.get(airline_id=f[8]).airline_name
+        date1 = leave_date if f[3] == leave_day % 2 else leave_date_tom
+        date2 = leave_date if f[11] == leave_day % 2 else leave_date_tom
+        d1 = str(Airport.objects.get(airport_id=f[5]))
+        a1 = str(Airport.objects.get(airport_id=f[7]))
+        d2 = str(Airport.objects.get(airport_id=f[13]))
+        a2 = str(Airport.objects.get(airport_id=f[15]))
+        f = (airline1,) + f[1:3] + (str(date1),) + (str(f[4]),) + (d1,) + \
+            (str(f[6]),) + (a1,) + (airline2,) + f[9:11] + (str(date2),) + \
+            (str(f[12]),) + (d2,) + (str(f[14]),) + (a2,)
+        one_stop_result.add(f)
+
     context = {
         'direct_flight': direct_result,
         'one_stop_flight': one_stop_result,
@@ -56,6 +82,7 @@ def search(request):
 
 
 def customer(request):
+    """For customer page"""
     template = loader.get_template('polls/customer.html')
     cus = Customer.objects.get(customer_id=19)
     context = {
@@ -65,6 +92,7 @@ def customer(request):
 
 
 def manager(request):
+    """For manager page"""
     template = loader.get_template('polls/manager_index.html')
     cus = Customer.objects.order_by('customer_id')
     context = {
@@ -90,10 +118,11 @@ RAW_SQL_FLIGHT = {
     'ONE_STOP': '''
                 SELECT *
                 FROM(
-                SELECT f1.Airline_ID as f_airline_id, f1.Flight_ID as f_flight_id, f1.Fare as f_fare, f1.Depart_time as f_depart_time,
-                f1.Depart_Airport as f_depart_airport, f1.Arrive_time as f_arrive_time, f1.Arrive_Airport as f_arrive_airport,
-                f2.Airline_ID as s_airline_id, f2.Flight_ID as s_flight_id, f2.Fare as s_fare, f2.Depart_time as s_depart_time,
-                f2.Depart_Airport as s_depart_airport, f2.Arrive_time as s_arrive_time, f2.Arrive_Airport as s_arrive_airport
+                SELECT f1.Airline_ID as f_airline_id, f1.Flight_ID as f_flight_id, f1.Fare as f_fare, f1.Workday as f_workday,
+                f1.Depart_time as f_depart_time,f1.Depart_Airport as f_depart_airport, f1.Arrive_time as f_arrive_time, 
+                f1.Arrive_Airport as f_arrive_airport,f2.Airline_ID as s_airline_id, f2.Flight_ID as s_flight_id, f2.Fare as s_fare, 
+                f2.Workday as s_worday, f2.Depart_time as s_depart_time,f2.Depart_Airport as s_depart_airport, 
+                f2.Arrive_time as s_arrive_time, f2.Arrive_Airport as s_arrive_airport
                 FROM Flight f1
                 JOIN Flight f2
                 WHERE f1.Arrive_Airport=f2.Depart_Airport
@@ -102,6 +131,25 @@ RAW_SQL_FLIGHT = {
                 WHERE f_depart_airport="{start_airport}" AND s_arrive_airport="{end_airport}"
             ''',
 }
+
+
+def getTomorrowDate(date):
+    date = list(map(int, date.split("-")))
+    date[2] = date[2] + 1
+    if date[2] > 30:
+        date[2] = date[2]-30
+        date[1] = date[1]+1
+    if date[1] > 12:
+        date[1] = date[1]-12
+        date[0] = date[0]+1
+    result = str(date[0])+"-"
+    if date[1] < 10:
+        result = result + "0"
+    result = result + str(date[1])+"-"
+    if date[2] < 10:
+        result = result + "0"
+    result = result + str(date[2])
+    return result
 
 
 def getDayFromDate(date):
