@@ -8,6 +8,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.utils import timezone
+from django.db import connection
 import datetime
 from .models import Flight, Airline, Customer
 # from .models import Question_new, Choice_new
@@ -30,6 +31,7 @@ def search(request):
     '''
     template = loader.get_template('polls/search.html')
     from_location = request.POST['from']
+    print(type(from_location))
     to_location = request.POST['to']
     passenger = request.POST['passenger']
     leave_date = timezone.now(
@@ -40,11 +42,13 @@ def search(request):
     return_day = getDayFromDate(return_date)
     # result = Flight.objects.filter(depart_airport=from_location,
     #                                arrive_airport=to_location, workday__range=[leave_day, leave_day+10],)
-    # need sql
-    result = Flight.objects.filter(depart_airport=from_location,
-                                   arrive_airport=to_location, workday=(leave_day % 2),)
+    direct_result = Flight.objects.filter(depart_airport=from_location,
+                                          arrive_airport=to_location, workday=(leave_day % 2),)
+    one_stop_result = one_stop_flight(
+        from_location, to_location, leave_day % 2, (leave_day+1) % 2)
     context = {
-        'flights': result,
+        'direct_flight': direct_result,
+        'one_stop_flight': one_stop_result,
         'leave_date': leave_date,
         'return_date': return_date,
     }
@@ -67,6 +71,37 @@ def manager(request):
         'customers': cus,
     }
     return HttpResponse(template.render(context, request))
+
+
+def one_stop_flight(start, end, workday1, workday2):
+    query = RAW_SQL_FLIGHT['ONE_STOP'].format(start_airport=start, end_airport=end, workday1=workday1,
+                                              workday2=workday2)
+    # print(query)
+    return execute_custom_sql(query)
+
+
+def execute_custom_sql(s):
+    cursor = connection.cursor()
+    cursor.execute(s)
+    return cursor.fetchall()
+
+
+RAW_SQL_FLIGHT = {
+    'ONE_STOP': '''
+                SELECT *
+                FROM(
+                SELECT f1.Airline_ID as f_airline_id, f1.Flight_ID as f_flight_id, f1.Fare as f_fare, f1.Depart_time as f_depart_time,
+                f1.Depart_Airport as f_depart_airport, f1.Arrive_time as f_arrive_time, f1.Arrive_Airport as f_arrive_airport,
+                f2.Airline_ID as s_airline_id, f2.Flight_ID as s_flight_id, f2.Fare as s_fare, f2.Depart_time as s_depart_time,
+                f2.Depart_Airport as s_depart_airport, f2.Arrive_time as s_arrive_time, f2.Arrive_Airport as s_arrive_airport
+                FROM Flight f1
+                JOIN Flight f2
+                WHERE f1.Arrive_Airport=f2.Depart_Airport
+                AND f1.workday={workday1} AND f2.workday={workday2}
+                ) res
+                WHERE f_depart_airport="{start_airport}" AND s_arrive_airport="{end_airport}"
+            ''',
+}
 
 
 def getDayFromDate(date):
