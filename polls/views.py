@@ -18,10 +18,10 @@ from .models import Flight, Airline, Customer, Airport
 def index(request):
     '''Substitiued by IndexView, which is a template provide by Django'''
     # latest_question_list = Question_new.objects.order_by('-pub_date')[:5]
-    latest_question_list = ""
+    airports = Airport.objects.filter()
     template = loader.get_template('polls/index.html')
     context = {
-        'latest_question_list': latest_question_list,
+        'airports': airports,
     }
     return HttpResponse(template.render(context, request))
 
@@ -32,7 +32,9 @@ def search(request):
     '''
     template = loader.get_template('polls/search.html')
     from_location = request.POST['from']
+    from_location = from_location[1:4]
     to_location = request.POST['to']
+    to_location = to_location[1:4]
     passenger = request.POST['passenger']
 
     leave_date = timezone.now(

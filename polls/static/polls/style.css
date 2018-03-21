@@ -52,18 +52,30 @@
     padding-right: 10px;
 }
 
+#selection #dropdown #from {
+    margin-left: -20px;
+    margin-right: 20px;
+}
 
-#selection #dropdown #arrive {
-    margin-right: 10px;
+#selection #dropdown #to {
+    margin-left: -20px;
+    margin-right: 20px;
+}
+
+#selection #dropdown #leave {
+    margin-left: -20px;
+    margin-right: 20px;
 }
 
 #selection #dropdown #return {
-    margin-right: 10px;
+    margin-left: -20px;
+    margin-right: 20px;
 }
 
 #selection #dropdown #passenger {
     width: 150;
     margin-right: 10px;
+    margin-left: -20px;
 }
 
 #selection #dropdown #passenger_icon {

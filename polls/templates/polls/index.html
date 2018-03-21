@@ -38,15 +38,20 @@
             <div id="dropdown">
                 <div class="form-group row" id="first_group">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Airport</label>
-                    <input type="text" id="from" class="col-sm-3" name="from" value="New York(JFK)">
+                    <input type="text" list="option" id="from" class="col-sm-4" name="from" value="(PVG)Shanghai Pudong International Airport">
+                    <datalist id="option">
+                        {% for airport in airports %}
+                        <option value="{{ airport }}"></option>
+                        {% endfor %}
+                    </datalist>
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Arrive Airport</label>
-                    <input type="text" id="to" class="col-sm-3" name="to" value="Beijing(BJS)">
+                    <input type="text" list="option" id="to" class="col-sm-4" name="to" value="(LAX)Los Angeles International Airport">
                 </div>
                 <div class="form-group row" id="second_group">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Date</label>
-                    <input type="text" onfocus="(this.type='date')" id="leave" name="leave" class="col-sm-3" placeholder="Depart Date">
+                    <input type="text" onfocus="(this.type='date')" id="leave" name="leave" class="col-sm-4" placeholder="Depart Date">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Return Date</label>
-                    <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-3" placeholder="Return Date">
+                    <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-4" placeholder="Return Date">
                 </div>
                 <div class="form-group row" id="third_group">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Passenger</label>

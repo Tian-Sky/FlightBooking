@@ -58,7 +58,7 @@ class Airport(models.Model):
         db_table = 'Airport'
 
     def __str__(self):
-        return self.airport_name+"("+self.airport_id+")"
+        return "("+self.airport_id+")"+self.airport_name
 
 
 class Customer(models.Model):
