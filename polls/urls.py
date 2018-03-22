@@ -17,5 +17,6 @@ urlpatterns = [
     # path('<int:question_id>/vote/', views.vote, name='vote'),
     path('search', views.search, name='search'),
     path('customer', views.customer, name='customer'),
-    path('manager', views.manager, name="manager")
+    path('manager', views.manager, name="manager"),
+    path('login', views.login, name='login'),
 ]

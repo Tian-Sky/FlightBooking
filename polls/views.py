@@ -26,6 +26,27 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 
+def login(request):
+    '''
+    Login page logic, can login as customer or manager
+    '''
+    email = request.POST['email']
+    password = request.POST['password']
+    if email == "tian@test.com" and password == "riverroad2017":
+        template = loader.get_template('polls/manager_index.html')
+        context = {}
+        return HttpResponseRedirect(reverse('polls:manager'))
+    else:
+        airports = Airport.objects.filter()
+        warning = True
+        template = loader.get_template('polls/index.html')
+        context = {
+            'airports': airports,
+            'warning': warning
+        }
+        return HttpResponse(template.render(context, request))
+
+
 def search(request):
     '''
     Logic to search flight
@@ -60,7 +81,6 @@ def search(request):
         from_location, to_location, leave_day % 2, (leave_day+1) % 2)
     one_stop_result = set()
     for f in one_stop:
-        print(f)
         airline1 = Airline.objects.get(airline_id=f[0]).airline_name
         airline2 = Airline.objects.get(airline_id=f[8]).airline_name
         date1 = leave_date if f[3] == leave_day % 2 else leave_date_tom
