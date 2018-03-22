@@ -35,17 +35,29 @@ body {
 #mycontent {
     margin-left: 40px;
     margin-right: 40px;
+    width: auto;
+    overflow-x: scroll;
 }
 
-#current-reservation {
+#reservation_now {
     color: black;
     font-weight: bold;
+}
+
+#reservation_history {
+    color: black;
+    font-weight: bold;
+    overflow-x: scroll;
+    min-width: 1800px;
 }
 
 #myprofile {
     padding-top: 10px;
     color: black;
     font-weight: 600;
-    overflow: auto;
-    overflow-x: hidden;
+}
+
+#myprofile ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: black;
+    opacity: 1; /* Firefox */
 }

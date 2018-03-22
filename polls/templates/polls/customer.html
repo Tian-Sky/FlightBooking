@@ -9,8 +9,11 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
         crossorigin="anonymous">
+    <link rel="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
         crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Customer</title>
 </head>
@@ -38,7 +41,7 @@
         <div id="mycontent">
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                    <table class="table table-striped" id="current-reservation">
+                    <table class="table table-striped" id="reservation_now">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -70,34 +73,43 @@
                     </table>
                 </div>
                 <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                    <table class="table table-striped" id="current-reservation">
+                    <table class="table table-striped" id="reservation_history">
+                        <!-- <table id="example" class="display nowrap" style="width:100%"> -->
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
+                                <th scope="col">Reservation ID</th>
+                                <th scope="col">Flight ID</th>
+                                <th scope="col">Order Date</th>
+                                <!-- <th scope="col">Total Cost</th> -->
+                                <th scope="col">Leave Date</th>
+                                <th scope="col">Depart Airport</th>
+                                <th scope="col">Arrive Airport</th>
+                                <th scope="col">Passenger Name</th>
+                                <th scope="col">Passenger Seat</th>
+                                <th scope="col">Passenger Meal Preference</th>
+                                <th scope="col">Passenger Class</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Representative ID</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for his in history %}
                             <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                                <th scope="col">{{ his.0 }}</th>
+                                <th scope="col">{{ his.1 }}</th>
+                                <th scope="col">{{ his.2 }}</th>
+                                <!-- <th scope="col">{{ his.3 }}</th> -->
+                                <th scope="col">{{ his.4 }}</th>
+                                <th scope="col">{{ his.5 }}</th>
+                                <th scope="col">{{ his.6 }}</th>
+                                <th scope="col">{{ his.7 }}</th>
+                                <th scope="col">{{ his.8 }}</th>
+                                <th scope="col">{{ his.9 }}</th>
+                                <th scope="col">{{ his.10 }}</th>
+                                <th scope="col">{{ his.11 }}</th>
+                                <th scope="col">{{ his.12 }}</th>
                             </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>the Bird</td>
-                                <td>@twitter</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -109,6 +121,12 @@
     </div>
 
 </body>
-
+<!-- <script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            "scrollX": true
+        });
+    });
+</script> -->
 
 </html>
