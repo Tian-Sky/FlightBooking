@@ -55,6 +55,7 @@ body {
     padding-top: 10px;
     color: black;
     font-weight: 600;
+    overflow: hidden;
 }
 
 #myprofile ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
