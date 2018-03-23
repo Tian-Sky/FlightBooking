@@ -12,8 +12,26 @@ body {
 #head {
     padding-top: 40px;
     padding-left: 60px;
-    padding-bottom: 40px;
+    padding-bottom: 50px;
     color: white
+}
+
+#head #left {
+    float: left;
+}
+
+#head #right {
+    float: right;
+    margin-right: 50px;
+    color: white;
+}
+
+#head #right a {
+    color: white;
+}
+
+#head #right a:hover{
+    color: black;
 }
 
 #mytable {

@@ -1,4 +1,5 @@
 '''Views for app polls'''
+import datetime
 from django.shortcuts import render
 # Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect
@@ -12,7 +13,7 @@ from django.utils import timezone
 from django.db import connection
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
-import datetime
+from django.contrib.auth.decorators import login_required
 from .models import Flight, Airline, Customer, Airport, Customer
 # from .models import Question_new, Choice_new
 
@@ -137,6 +138,8 @@ def customer(request):
     """For customer page"""
     template = loader.get_template('polls/customer.html')
     user = request.user
+    if not user.is_authenticated:
+        return HttpResponseRedirect(reverse('polls:index_default'))
     # In original db Customer table, we want to use email as username to log in
     # But in Django auth.user, by default it uses only username and password to log in
     # So we first import all data in Customer table to default auth.user table

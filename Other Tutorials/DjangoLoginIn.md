@@ -93,5 +93,12 @@ def logout_view(request):
     # Redirect to a success page.
 ```
 
+If you want to redirect unloged user to other page, in views.py you can do:
+
+```python
+user = request.user
+if not user.is_authenticated:
+        return HttpResponseRedirect(reverse('polls:index_default'))
+```
 
 Django also provides power other function, like limiting access, default view template. For thsoe imformation please check [official document](https://docs.djangoproject.com/en/2.0/topics/auth/default/#user-objects).
