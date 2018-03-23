@@ -22,7 +22,13 @@
 <body>
     <link rel="stylesheet" type="text/css" href="{% static 'polls/search.css' %}" />
     <div id="mybody">
-        <div id="empty"></div>
+        <div id="back">
+            <div id="right">
+                <button type="button" class="btn btn-outline-light">
+                    <a href="{% url 'polls:index_default' %}">Back to search page</a>
+                </button>
+            </div>
+        </div>
         <div id="content">
             <div id="direct flight">
                 {% if direct_flight %}
@@ -84,7 +90,7 @@
                         <tbody>
                             {% for flight in one_stop_flight %}
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
+                                <th scope="row" rowspan="2">{{ forloop.counter }}</th>
                                 <td>{{ flight.0 }}</td>
                                 <td>{{ flight.1 }}</td>
                                 <td>{{ flight.2 }}</td>
@@ -95,7 +101,7 @@
                                 <td>{{ flight.7 }}</td>
                             </tr>
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
+                                <!-- <th scope="row">{{ forloop.counter }}</th> -->
                                 <td>{{ flight.8 }}</td>
                                 <td>{{ flight.9 }}</td>
                                 <td>{{ flight.10 }}</td>
@@ -114,6 +120,8 @@
                 {% endif %}
             </div>
         </div>
+        <div id="empty"></div>
+    </div>
 </body>
 
 <script>

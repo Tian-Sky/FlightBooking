@@ -52,7 +52,11 @@
                             {{ user.first_name }}
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="user_dropdown">
+                            {% if user.is_superuser %}
+                            <a class="dropdown-item" href="{% url 'polls:manager' %}">Manager Page</a>
+                            {% else %}
                             <a class="dropdown-item" href="{% url 'polls:customer' %}">My Profile</a>
+                            {% endif %}
                             <a class="dropdown-item" href="{% url 'polls:logout' %}">Log out</a>
                         </div>
                     </div>
@@ -236,11 +240,11 @@
     $('#leave').attr("value", today);
     $('#return').attr("value", tomorrow);
 
-    //From return passenger number
+    //Form return passenger number
     $("#searchForm").submit(function (eventObj) {
         if (passenger == null)
             passenger = 1;
-        $('<input />').attr('name', "passenger")
+        $('<input type="hidden" />').attr('name', "passenger")
             .attr('value', passenger)
             .appendTo(this);
         return true;

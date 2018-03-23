@@ -50,13 +50,7 @@ def login_page(request):
     if user is not None:
         login(request, user)
         # Redirect to a success page.
-        if user.is_superuser:
-            return HttpResponseRedirect(reverse('polls:manager'))
-        else:
-            return HttpResponseRedirect(reverse('polls:index_default'))
-            # c_id = Customer.objects.get(
-            #     email=email, password=password).customer_id
-            # return HttpResponseRedirect(reverse('polls:customer', args=(c_id,)))
+        return HttpResponseRedirect(reverse('polls:index_default'))
     else:
         # Return an 'invalid login' error message.
         return HttpResponseRedirect(reverse('polls:index_warning'))
@@ -134,12 +128,11 @@ def search(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required(login_url='/polls/')
 def customer(request):
     """For customer page"""
     template = loader.get_template('polls/customer.html')
     user = request.user
-    if not user.is_authenticated:
-        return HttpResponseRedirect(reverse('polls:index_default'))
     # In original db Customer table, we want to use email as username to log in
     # But in Django auth.user, by default it uses only username and password to log in
     # So we first import all data in Customer table to default auth.user table
@@ -154,6 +147,7 @@ def customer(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required(login_url='/polls/')
 def manager(request):
     """For manager page"""
     template = loader.get_template('polls/manager_index.html')

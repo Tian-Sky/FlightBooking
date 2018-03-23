@@ -15,8 +15,18 @@
     margin-top: 100px;
 } */
 
-#empty {
+#back {
     height: 10vh;
+}
+
+#back #right {
+    float: right;
+    margin-right: 30px;
+    margin-top: 20px;
+}
+
+#back #right a{
+    color: black;
 }
 
 #content {
@@ -31,8 +41,11 @@
     min-height: 550px;
 }
 
-
 tr.group,
 tr.group:hover {
     background-color: #ddd !important;
+}
+
+#empty {
+    height: 5vh;
 }
