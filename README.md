@@ -1,6 +1,14 @@
-# MySQL for flight ticket booking website
+# Flgiht management and booking system
 
-This project is used for 2018 Spring class CS539 Database Implementation. It includes RDS Service on AWS as database, and Django website host on AWS Elastic Beanstalk. The website and database is designed for flight ticket booking system.
+This project is used for 2018 Spring class CS539 Database Implementation. It includes 
+
+* RDS(Relational Database Service) on AWS as database using MySQL
+* Website built with Django and Bootstrap, host on AWS Elastic Beanstalk. 
+* Map Google custom domain to EB url.
+
+You can find the project requirements in CS539_project1.pdf file. Basically we need to build a flight booking website, which should support flight searching and booking, user log in and log out, user history/current reservations and account information, and a manager page to manage the website and check all kinds of revenue. The flight data partially comes from website [openflights](https://openflights.org/data.html). However, that data does not include flight start and arrive time, flight ticket and customer information. So we make up that part randomly.
+
+## Virtual Environment
 
 Before you start the whole project, you probably want to creat a virtual environment so that your project environment won't mess up your computer default environment.
 
