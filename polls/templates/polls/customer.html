@@ -49,31 +49,39 @@
                     <table class="table table-striped" id="reservation_now">
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
+                                <th scope="col">Reservation ID</th>
+                                <th scope="col">Flight ID</th>
+                                <th scope="col">Order Date</th>
+                                <!-- <th scope="col">Total Cost</th> -->
+                                <th scope="col">Leave Date</th>
+                                <th scope="col">Depart Airport</th>
+                                <th scope="col">Arrive Airport</th>
+                                <th scope="col">Passenger Name</th>
+                                <th scope="col">Passenger Seat</th>
+                                <th scope="col">Passenger Meal Preference</th>
+                                <th scope="col">Passenger Class</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Representative ID</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for cur in current %}
                             <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                                <th scope="col">{{ cur.0 }}</th>
+                                <th scope="col">{{ cur.1 }}</th>
+                                <th scope="col">{{ cur.2 }}</th>
+                                <!-- <th scope="col">{{ his.3 }}</th> -->
+                                <th scope="col">{{ cur.4 }}</th>
+                                <th scope="col">{{ cur.5 }}</th>
+                                <th scope="col">{{ cur.6 }}</th>
+                                <th scope="col">{{ cur.7 }}</th>
+                                <th scope="col">{{ cur.8 }}</th>
+                                <th scope="col">{{ cur.9 }}</th>
+                                <th scope="col">{{ cur.10 }}</th>
+                                <th scope="col">{{ cur.11 }}</th>
+                                <th scope="col">{{ cur.12 }}</th>
                             </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>the Bird</td>
-                                <td>@twitter</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

@@ -140,9 +140,12 @@ def customer(request):
     cus = Customer.objects.get(email=user.username)
     his_query = RAW_SQL['RES_HISTORY'].format(customer_id=cus.customer_id)
     res_history = execute_custom_sql(his_query)
+    cur_query = RAW_SQL['RES_CURRENT'].format(customer_id=cus.customer_id)
+    res_current = execute_custom_sql(cur_query)
     context = {
         'customer': cus,
         'history': res_history,
+        'current': res_current,
     }
     return HttpResponse(template.render(context, request))
 
@@ -189,12 +192,29 @@ RAW_SQL = {
             ''',
     'RES_HISTORY': '''
                 SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
                 JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
                 JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
                 JOIN Flight f on f.FID = rf.FID
-                WHERE rf.Reservation_ID={customer_id};
+                WHERE ri.order_date < '2018-01-01' AND rf.Reservation_ID in (
+                    SELECT Reservation_ID
+                    FROM Account a
+                    WHERE a.Customer_ID = {customer_id}
+                );
+            ''',
+    'RES_CURRENT': '''
+                SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
+                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                FROM Reservation_Flight rf
+                JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
+                JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
+                JOIN Flight f on f.FID = rf.FID
+                WHERE ri.order_date > '2018-01-01' AND rf.Reservation_ID in (
+                    SELECT Reservation_ID
+                    FROM Account a
+                    WHERE a.Customer_ID = {customer_id}
+                );
             ''',
 }
 

@@ -60,6 +60,8 @@ body {
 #reservation_now {
     color: black;
     font-weight: bold;
+    overflow-x: scroll;
+    min-width: 1800px;
 }
 
 #reservation_history {
