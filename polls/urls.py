@@ -17,7 +17,8 @@ urlpatterns = [
     # path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
     # path('<int:question_id>/vote/', views.vote, name='vote'),
     path('search', views.search, name='search'),
-    path('<int:customer_id>/customer/', views.customer, name='customer'),
+    path('customer', views.customer, name='customer'),
     path('manager', views.manager, name="manager"),
-    path('login', views.login, name='login'),
+    path('login', views.login_page, name='login'),
+    path('logout', views.logout_page, name='logout'),
 ]

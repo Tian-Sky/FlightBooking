@@ -11,6 +11,7 @@ from django.views import generic
 from django.utils import timezone
 from django.db import connection
 from django.db.models import Q
+from django.contrib.auth import authenticate, login, logout
 import datetime
 from .models import Flight, Airline, Customer, Airport, Customer
 # from .models import Question_new, Choice_new
@@ -38,22 +39,42 @@ def index_warning(request):
     return HttpResponse(template.render(context, request))
 
 
-def login(request):
+def login_page(request):
     '''
     Login page logic, can login as customer or manager
     '''
     email = request.POST['email']
     password = request.POST['password']
-    if email == "tian@test.com" and password == "riverroad2017":
-        return HttpResponseRedirect(reverse('polls:manager'))
-    try:
-        c_id = Customer.objects.get(email=email, password=password).customer_id
-    except Customer.DoesNotExist:
-        c_id = None
-    if c_id is None:
-        return HttpResponseRedirect(reverse('polls:index_warning'))
+    user = authenticate(request, username=email, password=password)
+    if user is not None:
+        login(request, user)
+        # Redirect to a success page.
+        if user.is_superuser:
+            return HttpResponseRedirect(reverse('polls:manager'))
+        else:
+            return HttpResponseRedirect(reverse('polls:index_default'))
+            # c_id = Customer.objects.get(
+            #     email=email, password=password).customer_id
+            # return HttpResponseRedirect(reverse('polls:customer', args=(c_id,)))
     else:
-        return HttpResponseRedirect(reverse('polls:customer', args=(c_id,)))
+        # Return an 'invalid login' error message.
+        return HttpResponseRedirect(reverse('polls:index_warning'))
+
+    # if email == "tian@test.com" and password == "riverroad2017":
+    #     return HttpResponseRedirect(reverse('polls:manager'))
+    # try:
+    #     c_id = Customer.objects.get(email=email, password=password).customer_id
+    # except Customer.DoesNotExist:
+    #     c_id = None
+    # if c_id is None:
+    #     return HttpResponseRedirect(reverse('polls:index_warning'))
+    # else:
+    #     return HttpResponseRedirect(reverse('polls:customer', args=(c_id,)))
+
+
+def logout_page(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('polls:index_default'))
 
 
 def search(request):
@@ -112,11 +133,16 @@ def search(request):
     return HttpResponse(template.render(context, request))
 
 
-def customer(request, customer_id):
+def customer(request):
     """For customer page"""
     template = loader.get_template('polls/customer.html')
-    cus = Customer.objects.get(customer_id=customer_id)
-    his_query = RAW_SQL['RES_HISTORY'].format(customer_id=customer_id)
+    user = request.user
+    # In original db Customer table, we want to use email as username to log in
+    # But in Django auth.user, by default it uses only username and password to log in
+    # So we first import all data in Customer table to default auth.user table
+    # and set email as username
+    cus = Customer.objects.get(email=user.username)
+    his_query = RAW_SQL['RES_HISTORY'].format(customer_id=cus.customer_id)
     res_history = execute_custom_sql(his_query)
     context = {
         'customer': cus,

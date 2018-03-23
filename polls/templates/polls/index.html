@@ -40,6 +40,24 @@
                 </p>
             </div> -->
             <div class="right">
+                {% if user.is_authenticated %}
+                <div>
+                    <!-- <form action="{% url 'polls:logout' %}" method="post">{% csrf_token %}
+                        <button type="submit" class="btn btn-primary" style="background-color:green">Logout</button>
+                    </form>
+                    <button type="submit" class="btn btn-primary" style="background-color:green">Profile</button> -->
+                    <div class="btn-group dropleft" id="user">
+                        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            {{ user.first_name }}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="user_dropdown">
+                            <a class="dropdown-item" href="{% url 'polls:customer' %}">My Profile</a>
+                            <a class="dropdown-item" href="{% url 'polls:logout' %}">Log out</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo" style="background-color:green">Login</button>
 
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -112,6 +130,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </h2>
     </div>
