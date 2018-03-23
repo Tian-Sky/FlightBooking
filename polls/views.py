@@ -128,6 +128,13 @@ def search(request):
     return HttpResponse(template.render(context, request))
 
 
+def book(request):
+    template = loader.get_template('polls/book.html')
+    context = {
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @login_required(login_url='/polls/')
 def customer(request):
     """For customer page"""
