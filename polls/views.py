@@ -140,7 +140,6 @@ def book(request):
         flight.arrive_date = flight.workday
         flight.fly_hour = flight.arrive_time.hour - flight.depart_time.hour
     context = {
-        'leave_date': request.session['leave_date'],
         'flight': flight,
     }
     return HttpResponse(template.render(context, request))
