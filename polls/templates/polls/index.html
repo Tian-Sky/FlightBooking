@@ -248,9 +248,8 @@
     $("#searchForm").submit(function (eventObj) {
         if (passenger == null)
             passenger = 1;
-        $('<input type="hidden" />').attr('name', "passenger")
-            .attr('value', passenger)
-            .appendTo(this);
+        $(this).append('<input type="hidden" id="passenger_number" name="passenger_number" value="" /> ');
+        document.getElementById("passenger_number").value = passenger;
         return true;
     });
 </script>

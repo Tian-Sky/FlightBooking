@@ -74,7 +74,7 @@ def search(request):
     to_location = request.POST['to']
     to_location = to_location[1:4]
     # Put passenger number into session for book use
-    passenger = request.POST['passenger']
+    passenger = request.POST['passenger_number']
     request.session['passenger'] = passenger
 
     leave_date = timezone.now(
@@ -148,9 +148,13 @@ def book(request):
     # and set email as username
     cus = Customer.objects.get(email=user.username)
     account = Account.objects.filter(customer__customer_id=cus.customer_id)
+    try:
+        loop_times = int(request.session['passenger'])
+    except ValueError:
+        loop_times = 1
     context = {
         'flight': flight,
-        'passenger_loop_times': range(int(request.session['passenger'])),
+        'passenger_loop_times': range(loop_times),
         'accounts': account,
     }
     return HttpResponse(template.render(context, request))
