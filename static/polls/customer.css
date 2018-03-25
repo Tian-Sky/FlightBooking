@@ -39,7 +39,6 @@ body {
     margin-right: 40px;
     margin-bottom: 40px;
     height: 80vh;
-    overflow: auto;
     background-color: white;
     opacity: 0.85;
 }
@@ -60,6 +59,8 @@ body {
 #reservation_now {
     color: black;
     font-weight: bold;
+    overflow-x: scroll;
+    min-width: 1800px;
 }
 
 #reservation_history {
@@ -79,4 +80,16 @@ body {
 #myprofile ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: black;
     opacity: 1; /* Firefox */
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 7px;
+  }
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    box-shadow: 0 0 0.5px rgba(255, 255, 255, .5);
 }

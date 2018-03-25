@@ -55,6 +55,7 @@ a, a:hover, a:focus {
     background: #7386D5;
     color: #fff;
     transition: all 0.3s;
+    font-size: large;
 }
 
 #sidebar.active {
