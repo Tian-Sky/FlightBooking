@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 {% else %}
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo" style="background-color:green">Login</button>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Login</button>
 
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -140,58 +140,62 @@
     </div>
     <div style="clear: both;"></div>
     <div id="selection">
-        <div>
-            <h1 id="welcome">Welcome to SuperFlight, the best website for flight ticket</h1>
+        <div id="top">
         </div>
-        <form id="searchForm" action="{% url 'polls:search' %}" method="post">{% csrf_token %}
-            <div id="dropdown">
-                <div class="form-group row" id="first_group">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Airport</label>
-                    <input type="text" list="option" id="from" class="col-sm-4" name="from" value="(PVG)Shanghai Pudong International Airport">
-                    <datalist id="option">
-                        {% for airport in airports %}
-                        <option value="{{ airport }}"></option>
-                        {% endfor %}
-                    </datalist>
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Arrive Airport</label>
-                    <input type="text" list="option" id="to" class="col-sm-4" name="to" value="(LAX)Los Angeles International Airport">
-                </div>
-                <div class="form-group row" id="second_group">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Date</label>
-                    <input type="text" onfocus="(this.type='date')" id="leave" name="leave" class="col-sm-4" placeholder="Depart Date">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Return Date</label>
-                    <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-4" placeholder="Return Date">
-                </div>
-                <div class="form-group row" id="third_group">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Passenger</label>
-                    <button id="passenger" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                        <img id="passenger_icon" src="{% static 'polls/images/passenger2.jpg' %}" width=" 22 " height="22 " />
-                        <span class="passenger">1</span>
-                    </button>
-                    <div class="dropdown-menu ">
-                        <li>
-                            <a class="dropdown-item " href="# ">1</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item " href="# ">2</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item " href="# ">3</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item " href="# ">4</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item " href="# ">5</a>
-                        </li>
+        <div id="white">
+            <div>
+                <h2 id="welcome">Welcome to SuperFlight, your exclusive hookup for cheap flights</h2>
+            </div>
+            <form id="searchForm" action="{% url 'polls:search' %}" method="post">{% csrf_token %}
+                <div id="dropdown">
+                    <div class="form-group row" id="first_group">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Airport</label>
+                        <input type="text" list="option" id="from" class="col-sm-4" name="from" value="(PVG)Shanghai Pudong International Airport">
+                        <datalist id="option">
+                            {% for airport in airports %}
+                            <option value="{{ airport }}"></option>
+                            {% endfor %}
+                        </datalist>
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Arrive Airport</label>
+                        <input type="text" list="option" id="to" class="col-sm-4" name="to" value="(LAX)Los Angeles International Airport">
+                    </div>
+                    <div class="form-group row" id="second_group">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Date</label>
+                        <input type="text" onfocus="(this.type='date')" id="leave" name="leave" class="col-sm-4" placeholder="Depart Date">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Return Date</label>
+                        <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-4" placeholder="Return Date">
+                    </div>
+                    <div class="form-group row" id="third_group">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Passenger</label>
+                        <button id="passenger" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            <img id="passenger_icon" src="{% static 'polls/images/passenger2.jpg' %}" width=" 22 " height="22 " />
+                            <span class="passenger">1</span>
+                        </button>
+                        <div class="dropdown-menu ">
+                            <li>
+                                <a class="dropdown-item " href="# ">1</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item " href="# ">2</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item " href="# ">3</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item " href="# ">4</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item " href="# ">5</a>
+                            </li>
+                        </div>
+                    </div>
+                    <div class="form-group row" id="fourth_group">
+                        <button id="search" type="submit" class="btn btn-success">Search</button>
                     </div>
                 </div>
-                <div class="form-group row" id="fourth_group">
-                    <button id="search" type="submit" class="btn btn-success">Search</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </body>
 

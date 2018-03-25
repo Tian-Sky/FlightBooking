@@ -14,7 +14,7 @@ from django.db import connection
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Flight, Airline, Customer, Airport, Customer
+from .models import Flight, Airline, Customer, Airport, Customer, Account
 # from .models import Question_new, Choice_new
 
 
@@ -130,6 +130,7 @@ def search(request):
 
 def book(request):
     template = loader.get_template('polls/book.html')
+    # Get flight related data
     fid, date = request.session['direct_flight'][request.POST['id']].split(",")
     flight = Flight.objects.get(fid=fid)
     flight.workday = date
@@ -139,10 +140,25 @@ def book(request):
     else:
         flight.arrive_date = flight.workday
         flight.fly_hour = flight.arrive_time.hour - flight.depart_time.hour
+    # Get account data
+    user = request.user
+    # In original db Customer table, we want to use email as username to log in
+    # But in Django auth.user, by default it uses only username and password to log in
+    # So we first import all data in Customer table to default auth.user table
+    # and set email as username
+    cus = Customer.objects.get(email=user.username)
+    account = Account.objects.filter(customer__customer_id=cus.customer_id)
     context = {
         'flight': flight,
+        'passenger_loop_times': range(int(request.session['passenger'])),
+        'accounts': account,
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required(login_url='/polls/')
+def buy(request):
+    return HttpResponseRedirect(reverse('polls:index_default'))
 
 
 @login_required(login_url='/polls/')

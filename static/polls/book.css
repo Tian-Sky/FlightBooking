@@ -34,11 +34,13 @@
     height: auto;
     color: black;
     font-weight: 600;
-    min-height: 550px;
+    /* min-height: 550px; */
 }
 
 #content #flight {
     margin: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
 }
 
 #content #flight h5 {
@@ -46,10 +48,38 @@
 }
 
 #content #flight img {
-    margin-right: 20px;
+    margin-right:20px;
     width: 40px;
     height: 40px;
 }
+
+#content #passenger {
+    margin-left:20px;
+    margin-right:20px;
+}
+
+#content #passenger #information {
+    margin-top: 10px;
+}
+
+select {
+    font-weight: 700px;
+}
+
+button {
+    margin-bottom :20px;
+}
+
+hr { 
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: inset;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.404);
+} 
 
 #empty {
     height: 5vh;

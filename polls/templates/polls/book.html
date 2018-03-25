@@ -20,7 +20,9 @@
         <div id="back">
             <div id="right">
                 <button type="button" class="btn btn-outline-light">
-                    <a href="{% url 'polls:index_default' %}">Back to search page</a>
+                    <a href="{% url 'polls:index_default' %}">
+                        <strong>Back to search page</strong>
+                    </a>
                 </button>
             </div>
         </div>
@@ -61,8 +63,101 @@
                 </table>
             </div>
         </div>
+        <div id="content">
+            <div id="passenger">
+                <h4 style="margin-bottom:20px;">
+                    <strong>Travelers' details :</strong>
+                </h4>
+                <div id="pform">
+                    <form class="needs-validation" novalidate action="{% url 'polls:buy' %}" method="post">{% csrf_token %}
+                        <div class="form-group row">
+                            <label for="account" class="col-sm-2 col-form-label">Select account: </label>
+                            <div class="col-sm-4">
+                                <select id="account" name="account" class="form-control">
+                                    {% for account in accounts %} {% if forloop.counter == 1 %}
+                                    <option selected value="{{ forloop.counter }}"> &nbsp; &nbsp; &nbsp; No.{{forloop.counter}}, credit card: {{account.credit_card}}'</option>
+                                    {% else %}
+                                    <option value="{{ forloop.counter }}"> &nbsp; &nbsp; &nbsp; No.{{forloop.counter}}, credit card: {{account.credit_card}}'</option>
+                                    {% endif %} {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% for i in passenger_loop_times %}
+                        <div class="form-group row" id="information">
+                            <div class="col-md-4" style="margin-bottom: -10px;">
+                                <label for="customer{{ forloop.counter }}">Passenger #{{ forloop.counter }}</label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="name{{ forloop.counter }}" class="col-sm-2 col-form-label">Name: </label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="name{{forloop.counter}}" name="name{{forloop.counter}}" placeholder="" required>
+                                <div class="invalid-feedback">
+                                    Name cannot be the empty or be same.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <legend for="meal{{ forloop.counter }}" class="col-form-label col-sm-2 pt-0">Meal: </legend>
+                            <div class="col-sm-4">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio1" value="option1" checked>
+                                    <label class="form-check-label" for="inlineRadio1">regular</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio2" value="option2">
+                                    <label class="form-check-label" for="inlineRadio2">vegetarian</label>
+                                </div>
+                            </div>
+                            <legend for="class{{ forloop.counter }}" class="col-form-label col-sm-1 pt-0">Class: </legend>
+                            <div class="col-sm-4">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio1" value="option1" checked>
+                                    <label class="form-check-label" for="inlineRadio1">Economy</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio2" value="option2">
+                                    <label class="form-check-label" for="inlineRadio2">Business</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio3" value="option2">
+                                    <label class="form-check-label" for="inlineRadio3">First</label>
+                                </div>
+                            </div>
+                        </div>
+                        <hr> {% endfor %}
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <button type="submit" class="btn btn-primary" style="width:80px;">Buy</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         <div id="empty"></div>
     </div>
 </body>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    $(document).ready(function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    });
+</script>
 
 </html>
