@@ -15,7 +15,54 @@
 </head>
 
 <body>
-    <p>test book page</p>
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/book.css' %}" />
+    <div id="mybody">
+        <div id="back">
+            <div id="right">
+                <button type="button" class="btn btn-outline-light">
+                    <a href="{% url 'polls:index_default' %}">Back to search page</a>
+                </button>
+            </div>
+        </div>
+        <div id="content">
+            <h3 style="margin-left: 20px;">My Cart:</h3>
+            <div id="flight">
+                <h5>
+                    <img src="{% static 'polls/images/airplane.png' %}">{{ flight.depart_airport.city }}, {{ flight.depart_airport.country }} - {{ flight.arrive_airport.city}},
+                    {{ flight.arrive_airport.country }} &nbsp; &nbsp; &nbsp;{{ flight.workday }}</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" colspan="5">{{ flight.depart_airport }} - {{ flight.arrive_airport }}</th>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td style="width: 25%">{{ flight.airline.airline_name }}, Flight No. {{ flight.flight_id }}
+                            </td>
+                            <td style="width: 20%">departs {{ flight.depart_airport.airport_id }}, {{flight.depart_time}}
+                                <p>{{ flight.workday }}</p>
+                            </td>
+                            <td style="width: 20%">arrives {{ flight.arrive_airport.airport_id }}, {{flight.arrive_time}}
+                                <p>{{ flight.arrive_date }}</p>
+                            </td>
+                            <td>
+                                &nbsp; &nbsp;
+                                <img src="{% static 'polls/images/svg/clock.svg' %}" alt="clock" style="width:15px; height: 15px;margin-bottom:3px;">
+                                <p>{{ flight.fly_hour }} hours</p>
+                            </td>
+                            <td> Per person:
+                                <p>${{ flight.fare }}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="empty"></div>
+    </div>
 </body>
 
 </html>

@@ -55,19 +55,11 @@ def login_page(request):
         # Return an 'invalid login' error message.
         return HttpResponseRedirect(reverse('polls:index_warning'))
 
-    # if email == "tian@test.com" and password == "riverroad2017":
-    #     return HttpResponseRedirect(reverse('polls:manager'))
-    # try:
-    #     c_id = Customer.objects.get(email=email, password=password).customer_id
-    # except Customer.DoesNotExist:
-    #     c_id = None
-    # if c_id is None:
-    #     return HttpResponseRedirect(reverse('polls:index_warning'))
-    # else:
-    #     return HttpResponseRedirect(reverse('polls:customer', args=(c_id,)))
-
 
 def logout_page(request):
+    '''
+    Log out and delete all session data
+    '''
     logout(request)
     return HttpResponseRedirect(reverse('polls:index_default'))
 
@@ -81,7 +73,9 @@ def search(request):
     from_location = from_location[1:4]
     to_location = request.POST['to']
     to_location = to_location[1:4]
+    # Put passenger number into session for book use
     passenger = request.POST['passenger']
+    request.session['passenger'] = passenger
 
     leave_date = timezone.now(
     ) if request.POST['leave'] is None else request.POST['leave']
@@ -93,13 +87,19 @@ def search(request):
     return_day = getDayFromDate(return_date)
 
     # Get direct flight
+    request.session['direct_flight'] = {}
     direct_result = Flight.objects.filter(Q(depart_airport=from_location) &
                                           Q(arrive_airport=to_location) & (Q(workday=((leave_day+1) % 2)) | Q(workday=(leave_day % 2))),)
-    for d_f in direct_result:
+    for i, d_f in enumerate(direct_result):
         if d_f.workday == leave_day % 2:
             d_f.workday = leave_date
         else:
             d_f.workday = leave_date_tom
+        d_f.id = str(i)
+        # Put direct flight FID into into session for book use
+        # We also need to save leave date
+        request.session['direct_flight'][i] = str(d_f.fid)+","+d_f.workday
+        request.session.modified = True
 
     # Get one_stop flight
     one_stop = one_stop_flight(
@@ -130,7 +130,18 @@ def search(request):
 
 def book(request):
     template = loader.get_template('polls/book.html')
+    fid, date = request.session['direct_flight'][request.POST['id']].split(",")
+    flight = Flight.objects.get(fid=fid)
+    flight.workday = date
+    if flight.arrive_time.hour < flight.depart_time.hour:
+        flight.arrive_date = getTomorrowDate(flight.workday)
+        flight.fly_hour = flight.arrive_time.hour + 24 - flight.depart_time.hour
+    else:
+        flight.arrive_date = flight.workday
+        flight.fly_hour = flight.arrive_time.hour - flight.depart_time.hour
     context = {
+        'leave_date': request.session['leave_date'],
+        'flight': flight,
     }
     return HttpResponse(template.render(context, request))
 

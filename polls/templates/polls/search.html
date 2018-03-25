@@ -7,15 +7,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
 
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
-        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
-        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+        crossorigin="anonymous">
     <title>Search Result</title>
 </head>
 
@@ -38,100 +38,107 @@
             </div>
         </div>
         <div id="content">
-            <div id="direct flight">
-                {% if direct_flight %}
-                <div id="search_table">
-                    <table id="example1" class="table table-striped table-bordered" data-page-length="4" style="width:100%">
-                        <h3 style="text-align: center">Direct-flight results</h3>
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Airline_ID</th>
-                                <th scope="col">Flgiht_ID</th>
-                                <th scope="col">Price</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Depart Time</th>
-                                <th scope="col">Depart Airport</th>
-                                <th scope="col">Arrive Time</th>
-                                <th scope="col">Arrive Airport</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for flight in direct_flight %}
-                            <tr>
-                                <th scope="row" style="text-align:center">{{ forloop.counter }} {% if user.is_authenticated %}
-                                    <a href="{% url 'polls:book' %}">Book</a>
-                                    {% else %}
-                                    <button type="button" class="btn btn-primary" id="warning_button">Book</button>
-                                    {% endif %}
-                                </th>
-                                <td>{{ flight.airline.airline_name }}</td>
-                                <td>{{ flight.flight_id }}</td>
-                                <td>{{ flight.fare }}</td>
-                                <td>{{ flight.workday }}</td>
-                                <td>{{ flight.depart_time }}</td>
-                                <td>{{ flight.depart_airport }}</td>
-                                <td>{{ flight.arrive_time }}</td>
-                                <td>{{ flight.arrive_airport }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <h3 style="text-align: center; padding-bottom: 10px">No results for direct flight found.</h3>
-                {% endif %}
-            </div>
-            <div id="one_stop_flight">
-                {% if one_stop_flight %}
-                <div id="search_table">
-                    <h3 style="text-align: center; padding-top: 10px">One-stop results</h3>
-                    <table id="example2" class="table table-striped table-bordered" data-page-length="4" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Airline</th>
-                                <th scope="col">Flgiht_ID</th>
-                                <th scope="col">Price</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Depart Time</th>
-                                <th scope="col">Depart Airport</th>
-                                <th scope="col">Arrive Time</th>
-                                <th scope="col">Arrive Airport</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for flight in one_stop_flight %}
-                            <tr>
-                                <th scope="row" rowspan="2">{{ forloop.counter }}</th>
-                                <td>{{ flight.0 }}</td>
-                                <td>{{ flight.1 }}</td>
-                                <td>{{ flight.2 }}</td>
-                                <td>{{ flight.3 }}</td>
-                                <td>{{ flight.4 }}</td>
-                                <td>{{ flight.5 }}</td>
-                                <td>{{ flight.6 }}</td>
-                                <td>{{ flight.7 }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th scope="row">{{ forloop.counter }}</th> -->
-                                <td>{{ flight.8 }}</td>
-                                <td>{{ flight.9 }}</td>
-                                <td>{{ flight.10 }}</td>
-                                <td>{{ flight.11 }}</td>
-                                <td>{{ flight.12 }}</td>
-                                <td>{{ flight.13 }}</td>
-                                <td>{{ flight.14 }}</td>
-                                <td>{{ flight.15 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <h3 style="text-align: center">No results for one stop flights found.</h3>
-                {% endif %}
-            </div>
+
+            {% if direct_flight %}
+
+            <table id="example1" class="table" data-page-length="4" style="width:100%">
+                <h3 style="text-align: center"> Direct-flight results</h3>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Airline</th>
+                        <th scope="col">Flgiht_ID</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Depart Time</th>
+                        <th scope="col">Depart Airport</th>
+                        <th scope="col">Arrive Time</th>
+                        <th scope="col">Arrive Airport</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flight in direct_flight %}
+                    <tr>
+                        <th scope="row" style="text-align:center">
+                            {{ forloop.counter }}
+                        </th>
+                        <td>{{ flight.airline.airline_name }}</td>
+                        <td>{{ flight.flight_id }}</td>
+                        <td>{{ flight.fare }}</td>
+                        <td>{{ flight.workday }}</td>
+                        <td>{{ flight.depart_time }}</td>
+                        <td>{{ flight.depart_airport }}</td>
+                        <td>{{ flight.arrive_time }}</td>
+                        <td>{{ flight.arrive_airport }}</td>
+                        <th>
+                            {% if user.is_authenticated %}
+                            <div>
+                                <form action="{% url 'polls:book' %}" method="post">{% csrf_token %}
+                                    <input type="text" name="id" value="{{ flight.id }}" hidden>
+                                    <button type="submit" class="btn btn-primary" value="submit">Select</button>
+                                </form>
+                                {% else %}
+                                <button type="button" class="btn btn-primary" id="warning_button">Select</button>
+                                {% endif %}
+                            </div>
+                        </th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <h3 style="text-align: center; padding-bottom: 10px">No results for direct flight found.</h3>
+            {% endif %} {% if one_stop_flight %}
+
+            <h3 style="text-align: center; padding-top: 10px">One-stop results</h3>
+            <table id="example2" class="table" data-page-length="4" style="width:100%">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Airline</th>
+                        <th scope="col">Flgiht_ID</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Depart Time</th>
+                        <th scope="col">Depart Airport</th>
+                        <th scope="col">Arrive Time</th>
+                        <th scope="col">Arrive Airport</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flight in one_stop_flight %}
+                    <tr>
+                        <th scope="row" rowspan="2">{{ forloop.counter }}</th>
+                        <td>{{ flight.0 }}</td>
+                        <td>{{ flight.1 }}</td>
+                        <td>{{ flight.2 }}</td>
+                        <td>{{ flight.3 }}</td>
+                        <td>{{ flight.4 }}</td>
+                        <td>{{ flight.5 }}</td>
+                        <td>{{ flight.6 }}</td>
+                        <td>{{ flight.7 }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="display: none;">{{ forloop.counter }}</th>
+                        <td>{{ flight.8 }}</td>
+                        <td>{{ flight.9 }}</td>
+                        <td>{{ flight.10 }}</td>
+                        <td>{{ flight.11 }}</td>
+                        <td>{{ flight.12 }}</td>
+                        <td>{{ flight.13 }}</td>
+                        <td>{{ flight.14 }}</td>
+                        <td>{{ flight.15 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <h3 style="text-align: center">No results for one stop flights found.</h3>
+            {% endif %}
+
         </div>
         <div id="empty"></div>
     </div>
@@ -142,10 +149,11 @@
         $('#example1').DataTable({
             "order": [[4, "asc"]]
         });
-    });
-    $(document).ready(function () {
         $('#example2').DataTable();
     });
+    // $(document).ready(function () {
+    //     $('table.display').DataTable();
+    // });
 
     $('#warning_button').click(function () {
         $('.alert').show()
