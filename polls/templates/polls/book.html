@@ -15,7 +15,12 @@
 </head>
 
 <body>
-    <link rel="stylesheet" type="text/css" href="{% static 'polls/book.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/book.css' %}" /> {% if duplicate_name %}
+    <div class="alert alert-danger" role="alert" style="margin-bottom: 0px; text-align: center;">
+        Passenger
+        <strong>{{duplicate_name}}/{{ duplicate_name|capfirst }}</strong> is already on that flight, duplicated!
+    </div>
+    {% endif %}
     <div id="mybody">
         <div id="back">
             <div id="right">

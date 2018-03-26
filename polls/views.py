@@ -118,7 +118,10 @@ def search(request):
             (str(f[6]),) + (a1,) + (airline2,) + f[9:11] + (str(date2),) + \
             (str(f[12]),) + (d2,) + (str(f[14]),) + (a2,)
         one_stop_result.add(f)
-
+    # Distinguish between jump from search to book and buy to book(back due to duplicate names)
+    request.session['duplicate_name'] = None
+    request.session['book_fid'] = None
+    request.session['leave_date'] = None
     context = {
         'direct_flight': direct_result,
         'one_stop_flight': one_stop_result,
@@ -132,7 +135,14 @@ def search(request):
 def book(request):
     template = loader.get_template('polls/book.html')
     # Get flight related data
-    fid, date = request.session['direct_flight'][request.POST['id']].split(",")
+    # We may jump back because passenger name duplicate
+    # In this case we do not get fid and date by POST
+    if request.session['duplicate_name'] is None:
+        fid, date = request.session['direct_flight'][request.POST['id']].split(
+            ",")
+    else:
+        fid = request.session['book_fid']
+        date = request.session['leave_date']
     flight = Flight.objects.get(fid=fid)
     flight.workday = date
     if flight.arrive_time.hour < flight.depart_time.hour:
@@ -168,6 +178,7 @@ def book(request):
         'flight': flight,
         'passenger_loop_times': range(loop_times),
         'accounts': account_unique,
+        'duplicate_name': request.session['duplicate_name']
     }
     return HttpResponse(template.render(context, request))
 
@@ -178,13 +189,42 @@ def buy(request):
     Write new reservation data into DB
     1.Reservation-Info - 2.Account - 3.RF-Relation - 4.Reservation-Flight
     '''
-    # First fetch data from POST and write to Reservation-Info
-    order_date = str(datetime.datetime.now().date())
-    leave_date = request.POST['leave_date']
+    # First we need to check if that flight already have thsoe customers
+    fid = request.POST['fid']  # Flight ID, unique
+    request.session['book_fid'] = fid
+    leave_date = request.POST['leave_date']  # Flight leave date
+    request.session['leave_date'] = leave_date
     try:
+        # check how many passengers this time
         loop_times = int(request.session['passenger'])
     except ValueError:
         loop_times = 1
+    # check db get all names in that flight
+    exist_passengers = exist_passenger(fid, leave_date)
+    new_passengers = []
+    for i in range(loop_times):  # Get new passengers this time
+        index = i+1
+        new_passengers.append(str(request.POST["name"+str(index)]))
+    name_duplicate = False
+    duplicate_name = ""
+    if exist_passengers:
+        for ex_name in exist_passengers:
+            for new_name in new_passengers:
+                if ex_name[0].lower() == new_name.lower():
+                    name_duplicate = True
+                    duplicate_name = new_name
+                    break
+            if name_duplicate:
+                break
+    # If name has duplication, we redirect it to buy page with warning
+    if name_duplicate:
+        request.session['duplicate_name'] = duplicate_name
+        return HttpResponseRedirect(reverse('polls:book'))
+
+    # First fetch data from POST and write to Reservation-Info
+    # Order date, which is todyday
+    order_date = str(datetime.datetime.now().date())
+    # Total cost for this reservation
     total_cost = loop_times * int(request.POST['cost'])
     book_fee = int(total_cost*0.1)
     RI = ReservationInfo(order_date=order_date, total_cost=total_cost,
@@ -199,7 +239,7 @@ def buy(request):
                 create_date=order_date, credit_card=credit_card)
     A.save(force_insert=True)
     # Now write to RF-Relation
-    fid = request.POST['fid']
+
     F = Flight.objects.get(fid=fid)
     RR = RfRelation(reservation=RI, fid=F, leave_date=leave_date)
     RR.save(force_insert=True)
@@ -254,6 +294,12 @@ def one_stop_flight(start, end, workday1, workday2):
     return execute_custom_sql(query)
 
 
+def exist_passenger(fid, leave_date):
+    query = RAW_SQL['SEARCH_EXIST_PASSENGER'].format(
+        fid=fid, leave_date=leave_date)
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -294,7 +340,7 @@ RAW_SQL = {
                     SELECT Reservation_ID
                     FROM Account a
                     WHERE a.Customer_ID = {customer_id}
-                );
+                ) ORDER BY rf.Reservation_ID DESC;
             ''',
     'RES_CURRENT': '''
                 SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
@@ -307,11 +353,17 @@ RAW_SQL = {
                     SELECT Reservation_ID
                     FROM Account a
                     WHERE a.Customer_ID = {customer_id}
-                );
+                ) ORDER BY rf.Reservation_ID DESC;
             ''',
     'INSERT_RES_FLIGHT': '''
                 INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
                 VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})
+            ''',
+    'SEARCH_EXIST_PASSENGER': '''
+                Select rf.P_name 
+                from Reservation_Flight rf
+                Join RF_Relation rr USING (Reservation_ID, FID)
+                WHERE rr.FID={fid} and rr.leave_date = "{leave_date}";
             ''',
 }
 
