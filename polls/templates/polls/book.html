@@ -72,12 +72,15 @@
                     <form class="needs-validation" novalidate action="{% url 'polls:buy' %}" method="post">{% csrf_token %}
                         <div class="form-group row">
                             <label for="account" class="col-sm-2 col-form-label">Select account: </label>
+                            <input type="hidden" name="cost" value="{{ flight.fare }}">
+                            <input type="hidden" name="leave_date" value="{{ flight.workday }}">
+                            <input type="hidden" name="fid" value="{{ flight.fid }}">
                             <div class="col-sm-4">
-                                <select id="account" name="account" class="form-control">
+                                <select id="account" name="account_id_and_credit_card" class="form-control">
                                     {% for account in accounts %} {% if forloop.counter == 1 %}
-                                    <option selected value="{{ forloop.counter }}"> &nbsp; &nbsp; &nbsp; No.{{forloop.counter}}, credit card: {{account.credit_card}}'</option>
+                                    <option selected value="{{account.account_id}},{{account.credit_card}}"> &nbsp; &nbsp; &nbsp; No.{{account.account_id}}, credit card: {{account.credit_card}}'</option>
                                     {% else %}
-                                    <option value="{{ forloop.counter }}"> &nbsp; &nbsp; &nbsp; No.{{forloop.counter}}, credit card: {{account.credit_card}}'</option>
+                                    <option value="{{account.account_id}},{{account.credit_card}}"> &nbsp; &nbsp; &nbsp; No.{{account.account_id}}, credit card: {{account.credit_card}}'</option>
                                     {% endif %} {% endfor %}
                                 </select>
                             </div>
@@ -101,26 +104,26 @@
                             <legend for="meal{{ forloop.counter }}" class="col-form-label col-sm-2 pt-0">Meal: </legend>
                             <div class="col-sm-4">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio1" value="option1" checked>
+                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio1" value="regular" checked>
                                     <label class="form-check-label" for="inlineRadio1">regular</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio2" value="option2">
+                                    <input class="form-check-input" type="radio" name="meal{{ forloop.counter }}" id="inlineRadio2" value="vegetarian">
                                     <label class="form-check-label" for="inlineRadio2">vegetarian</label>
                                 </div>
                             </div>
                             <legend for="class{{ forloop.counter }}" class="col-form-label col-sm-1 pt-0">Class: </legend>
                             <div class="col-sm-4">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio1" value="option1" checked>
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio1" value="Economy" checked>
                                     <label class="form-check-label" for="inlineRadio1">Economy</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio2" value="option2">
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio2" value="Business">
                                     <label class="form-check-label" for="inlineRadio2">Business</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio3" value="option2">
+                                    <input class="form-check-input" type="radio" name="class{{ forloop.counter }}" id="inlineRadio3" value="First">
                                     <label class="form-check-label" for="inlineRadio3">First</label>
                                 </div>
                             </div>

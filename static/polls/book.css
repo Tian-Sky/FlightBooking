@@ -25,6 +25,10 @@
     color: black;
 }
 
+#back #right a:hover{
+    font-weight: bold;
+}
+
 #content {
     background-color: white;
     opacity: 0.9;

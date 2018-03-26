@@ -14,7 +14,7 @@ from django.db import connection
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Flight, Airline, Customer, Airport, Customer, Account
+from .models import Flight, Airline, Customer, Airport, Customer, Account, ReservationInfo, RfRelation, ReservationFlight
 # from .models import Question_new, Choice_new
 
 
@@ -128,6 +128,7 @@ def search(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required(login_url='/polls/')
 def book(request):
     template = loader.get_template('polls/book.html')
     # Get flight related data
@@ -142,12 +143,23 @@ def book(request):
         flight.fly_hour = flight.arrive_time.hour - flight.depart_time.hour
     # Get account data
     user = request.user
-    # In original db Customer table, we want to use email as username to log in
+    # In original db Customer table, we use email as username to log in
     # But in Django auth.user, by default it uses only username and password to log in
     # So we first import all data in Customer table to default auth.user table
     # and set email as username
     cus = Customer.objects.get(email=user.username)
-    account = Account.objects.filter(customer__customer_id=cus.customer_id)
+    accounts = Account.objects.filter(customer__customer_id=cus.customer_id)
+    # Need to get unique account id and account credit card
+    account_hash = set()
+    for acc in accounts:
+        account_hash.add(str(acc.account_id)+","+str(acc.credit_card))
+    account_unique = list()
+    for hash in account_hash:
+        id, credit_card = hash.split(",")
+        ac = {}
+        ac['account_id'] = id
+        ac['credit_card'] = credit_card
+        account_unique.append(ac)
     try:
         loop_times = int(request.session['passenger'])
     except ValueError:
@@ -155,14 +167,51 @@ def book(request):
     context = {
         'flight': flight,
         'passenger_loop_times': range(loop_times),
-        'accounts': account,
+        'accounts': account_unique,
     }
     return HttpResponse(template.render(context, request))
 
 
 @login_required(login_url='/polls/')
 def buy(request):
-    return HttpResponseRedirect(reverse('polls:index_default'))
+    '''
+    Write new reservation data into DB
+    1.Reservation-Info - 2.Account - 3.RF-Relation - 4.Reservation-Flight
+    '''
+    # First fetch data from POST and write to Reservation-Info
+    order_date = str(datetime.datetime.now().date())
+    leave_date = request.POST['leave_date']
+    try:
+        loop_times = int(request.session['passenger'])
+    except ValueError:
+        loop_times = 1
+    total_cost = loop_times * int(request.POST['cost'])
+    book_fee = int(total_cost*0.1)
+    RI = ReservationInfo(order_date=order_date, total_cost=total_cost,
+                         book_fee=book_fee, leave_date=leave_date, representative_id="Xinzhang")
+    RI.save()
+    # Then write to Account
+    account_id, credit_card = request.POST['account_id_and_credit_card'].split(
+        ",")
+    user = request.user
+    cus = Customer.objects.get(email=user.username)
+    A = Account(customer=cus, account_id=account_id, reservation=RI,
+                create_date=order_date, credit_card=credit_card)
+    A.save(force_insert=True)
+    # Now write to RF-Relation
+    fid = request.POST['fid']
+    F = Flight.objects.get(fid=fid)
+    RR = RfRelation(reservation=RI, fid=F, leave_date=leave_date)
+    RR.save(force_insert=True)
+    # Finally write to Reservation-Flight
+    for i in range(loop_times):
+        index = i+1
+        name = str(request.POST["name"+str(index)])
+        meal = request.POST["meal"+str(index)]
+        cla = request.POST["class"+str(index)]
+        insert_passenger_info(
+            RI.reservation_id, F.fid, name, index, meal, cla, request.POST['cost'])
+    return HttpResponseRedirect(reverse('polls:customer'))
 
 
 @login_required(login_url='/polls/')
@@ -170,7 +219,7 @@ def customer(request):
     """For customer page"""
     template = loader.get_template('polls/customer.html')
     user = request.user
-    # In original db Customer table, we want to use email as username to log in
+    # In original db Customer table, we use email as username to log in
     # But in Django auth.user, by default it uses only username and password to log in
     # So we first import all data in Customer table to default auth.user table
     # and set email as username
@@ -203,6 +252,13 @@ def one_stop_flight(start, end, workday1, workday2):
                                               workday2=workday2)
     # print(query)
     return execute_custom_sql(query)
+
+
+def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
+    query = RAW_SQL['INSERT_RES_FLIGHT'].format(
+        Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
+    cursor = connection.cursor()
+    cursor.execute(query)
 
 
 def execute_custom_sql(s):
@@ -252,6 +308,10 @@ RAW_SQL = {
                     FROM Account a
                     WHERE a.Customer_ID = {customer_id}
                 );
+            ''',
+    'INSERT_RES_FLIGHT': '''
+                INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
+                VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})
             ''',
 }
 

@@ -30,8 +30,12 @@ body {
     color: white;
 }
 
+#head #right button:hover {
+    background-color: transparent;
+}
+
 #head #right a:hover{
-    color: black;
+    font-weight: bold;
 }
 
 #mytable {
