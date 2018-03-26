@@ -95,7 +95,7 @@
                             <label for="name{{ forloop.counter }}" class="col-sm-2 col-form-label">Name: </label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" id="name{{forloop.counter}}" name="name{{forloop.counter}}" placeholder="" required>
-                                <div class="invalid-feedback">
+                                <div id="error{{forloop.counter}}" style="color:red; display:none">
                                     Name cannot be the empty or be same.
                                 </div>
                             </div>
@@ -142,7 +142,49 @@
     </div>
 </body>
 
-<script>
+<script type="text/javascript">
+    function getMax() {
+        var i = 1;
+        for (; i <= 5; i++) {
+            var n = document.getElementById("name" + i);
+            if (n == null) {
+                break;
+            }
+            max = i;
+        }
+        return max;
+    }
+    // create customer function to check valid input
+    function checkValue() {
+        var i = 1;
+        var max = getMax();
+        var list = [];
+        for (; i <= getMax(); i++) {
+            var n = document.getElementById("name" + i);
+            list.push(n.value);
+        }
+        var nullValue = false;
+        i = 0;
+        for (; i < max; i++) {
+            if (list[i] == "") {
+                nullValue = true;
+                break;
+            }
+        }
+        var sameValue = false;
+        i = 0;
+        list.sort();
+        for (; i < max - 1; i++) {
+            if (list[i] == list[i + 1]) {
+                sameValue = true;
+                break;
+            }
+        }
+        if (nullValue == true)
+            return "null";
+        if (sameValue == true)
+            return "same";
+    }
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     $(document).ready(function () {
         'use strict';
@@ -152,7 +194,25 @@
             // Loop over them and prevent submission
             var validation = Array.prototype.filter.call(forms, function (form) {
                 form.addEventListener('submit', function (event) {
-                    if (form.checkValidity() === false) {
+                    if (checkValue() == "null") {
+                        var i = 1;
+                        var max = getMax();
+                        for (; i <= max; i++) {
+                            var err = document.getElementById("error" + i);
+                            err.innerText = "name can not be empty"
+                            err.style.display = "block";
+                        }
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    if (checkValue() == "same") {
+                        var i = 1;
+                        var max = getMax();
+                        for (; i <= max; i++) {
+                            var err = document.getElementById("error" + i);
+                            err.innerText = "name can not be same"
+                            err.style.display = "block";
+                        }
                         event.preventDefault();
                         event.stopPropagation();
                     }
