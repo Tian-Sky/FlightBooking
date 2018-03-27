@@ -431,11 +431,13 @@ def manager(request):
     month = request.session.get('sales_report_month', "03")
     sales_report_month = "2016-"+month+"%"
     sales_report = get_sales_report(sales_report_month)
+    flights = Flight.objects.filter()
     context = {
         'customers': cus,
         'sales_data': sales_report,
         'sales_month': MONTH[month],
-        "tag": request.session.get('manager_tag', 0)
+        'tag': request.session.get('manager_tag', 0),
+        'flights': flights,
     }
     request.session['manager_tag'] = 0
     return HttpResponse(template.render(context, request))

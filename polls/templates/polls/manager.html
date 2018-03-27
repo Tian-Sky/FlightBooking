@@ -22,7 +22,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="#">Manage Website</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
             aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -39,10 +39,10 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
-                        Dropdown
+                        About Flights
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="content-link dropdown-item" data-toggle="collapse" data-target="#collapseExample3">Action</a>
+                        <a class="content-link dropdown-item" data-toggle="collapse" data-target="#flights">All Flights</a>
                         <a class="dropdown-item" href="#">Another action</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Something else here</a>
@@ -148,9 +148,41 @@
             </div>
         </div>
 
-        <div class="section collapse" id="collapseExample3">
+        <div class="section collapse" id="flights">
             <div class="card card-body">
-                test3333
+                <table id="flights_table" class="table table-striped table-bordered data-table">
+                    <thead>
+                        <tr>
+                            <th scope="col ">ID</th>
+                            <th scope="col ">Airline Name</th>
+                            <th scope="col ">Flgiht ID</th>
+                            <th scope="col ">Capacity</th>
+                            <th scope="col ">Base Price</th>
+                            <th scope="col ">Workday</th>
+                            <th scope="col ">Depart Time</th>
+                            <th scope="col ">Depart Airport</th>
+                            <th scope="col ">Arrive Time</th>
+                            <th scope="col ">Arrive Airport</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flight in flights %}
+                        <tr>
+                            <!-- <th scope="row "></th> -->
+                            <td>{{ flight.fid }}</td>
+                            <td>{{ flight.airline.airline_name }}</td>
+                            <td>{{ flight.flight_id }}</td>
+                            <td>{{ flight.capacity }}</td>
+                            <td>{{ flight.fare }}</td>
+                            <td>{{ flight.workday }}</td>
+                            <td>{{ flight.depart_time }}</td>
+                            <td>{{ flight.depart_airport }}</td>
+                            <td>{{ flight.arrive_time }}</td>
+                            <td>{{ flight.arrive_airport }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
