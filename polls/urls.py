@@ -26,4 +26,5 @@ urlpatterns = [
     path('register', views.register, name="register"),
     path('update_info', views.update_info, name="update_info"),
     path('sales_month', views.sales_month, name="sales_month"),
+    path('get_all_flights', views.get_all_flights, name="get_all_flights"),
 ]

@@ -56,7 +56,7 @@
             </div>
         </div>
     </nav>
-    <p hidden id="showTag">{% if tag == 1 %}sales_report{% else %}customers{% endif %}</p>
+    <p hidden id="showTag">{% if tag == 2 %}flights{% elif tag == 1 %}sales_report{% else %}customers{% endif %}</p>
     <div id="all_content">
         <div class="section collapse" id="customers">
             <h5 class="card-header">All customers:</h5>
@@ -149,6 +149,15 @@
         </div>
 
         <div class="section collapse" id="flights">
+            <div class="card-header">
+                <form class="form-inline" action="{% url 'polls:get_all_flights' %}" method="post">{% csrf_token %}
+                    <div class="form-group mb-2">
+                        <label for="selectMonth" class="col-md-12 col-form-label">Fetch data for all flights </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Search</button>
+                </form>
+                <p>Data for all flights are large, it may take some time, please be patient</p>
+            </div>
             <div class="card card-body">
                 <table id="flights_table" class="table table-striped table-bordered data-table">
                     <thead>

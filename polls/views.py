@@ -431,7 +431,10 @@ def manager(request):
     month = request.session.get('sales_report_month', "03")
     sales_report_month = "2016-"+month+"%"
     sales_report = get_sales_report(sales_report_month)
-    flights = Flight.objects.filter()
+    if request.session.get('flights_list', False):
+        flights = Flight.objects.filter()
+    else:
+        flights = set()
     context = {
         'customers': cus,
         'sales_data': sales_report,
@@ -440,6 +443,7 @@ def manager(request):
         'flights': flights,
     }
     request.session['manager_tag'] = 0
+    request.session['flight_list'] = False
     return HttpResponse(template.render(context, request))
 
 
@@ -447,6 +451,13 @@ def manager(request):
 def sales_month(request):
     request.session['sales_report_month'] = request.POST['salesMonth']
     request.session['manager_tag'] = 1
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+@login_required(login_url='/polls/')
+def get_all_flights(request):
+    request.session['flights_list'] = True
+    request.session['manager_tag'] = 2
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
