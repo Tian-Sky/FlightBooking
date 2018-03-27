@@ -23,4 +23,6 @@ urlpatterns = [
     path('logout', views.logout_page, name='logout'),
     path('book', views.book, name='book'),
     path('buy', views.buy, name="buy"),
+    path('register', views.register, name="register"),
+    path('update_info', views.update_info, name="update_info")
 ]

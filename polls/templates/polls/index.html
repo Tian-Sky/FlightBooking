@@ -49,7 +49,7 @@
                     <div class="btn-group dropleft" id="user">
                         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
-                            {{ user.first_name }}
+                            Welcome {{ user.first_name }} !
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="user_dropdown">
                             {% if user.is_superuser %}
@@ -103,19 +103,86 @@
                                         </form>
                                     </div>
                                     <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                        <form>
+                                        <form class="needs-validation" novalidate action="{% url 'polls:register' %}" method="post" id="register">{% csrf_token %}
                                             <div class="form-group">
-                                                <label for="exampleInputEmail1">Pleae enter your email address</label>
-                                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                                                <label for="Email">Pleae enter your email address (*)</label>
+                                                <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email" required>
+                                                <div class="warning" id="erremail" style="color:red; display:none">
+                                                    Email cannot be the empty.
+                                                </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="exampleInputPassword1">Please enter your password</label>
-                                                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                                                <label for="password1">Please enter your password (*)</label>
+                                                <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
+                                                <div class="warning" id="errpassword1" style="color:red; display:none">
+                                                    Password cannot be the empty.
+                                                </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="exampleInputPassword1">Please enter your password again</label>
-                                                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                                                <label for="password2">Please enter your password again (*)</label>
+                                                <input type="password" class="form-control" id="password2" name="password2" placeholder="Password" onkeyup="checkPass(); return false;"
+                                                    required>
+                                                <div class="warning" id="errpassword2" style="color:red; display:none">
+                                                    Password cannot be the empty.
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="firstName">Please enter your first name (*)</label>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter First Name" required>
+                                                <div class="warning" id="errfirstName" style="color:red; display:none">
+                                                    FirstName cannot be the empty.
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="lastName">Please enter your last name (*)</label>
+                                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter Last Name" required>
+                                                <div class="warning" id="errlastName" style="color:red; display:none">
+                                                    LastName cannot be the empty.
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="card1">Please enter your credit card number (*)</label>
+                                                <input type="number" class="form-control" id="card1" name="card1" placeholder="Enter Credit Card for First Account" required>
+                                                <div class="warning" id="errcard1" style="color:red; display:none">
+                                                    You must provide at least one credit card.
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="card2">Please enter your credit card number</label>
+                                                <input type="number" class="form-control" id="card2" name="card2" placeholder="Enter Credit Card for Second Account">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="card3">Please enter your credit card number</label>
+                                                <input type="number" class="form-control" id="card3" name="card3" placeholder="Enter Credit Card for Third Account">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="address">Please enter your address</label>
+                                                <input type="text" class="form-control" id="address" name="address" placeholder="Enter Address">
+
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="city">Please enter your city</label>
+                                                <input type="text" class="form-control" id="city" name="city" placeholder="Enter City">
+
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="state">Please enter your state</label>
+                                                <select class="form-control" id="state" name="state" placeholder="Enter State">
+                                                    <option selected value="New York (NY)">New York (NY)</option>
+                                                    {% for state in states %}
+                                                    <option value="{{ state }}">{{ state }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="zip">Please enter your zip code</label>
+                                                <input type="number" class="form-control" id="zip" name="zip" placeholder="Enter Zip Code">
+
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="phone">Please enter your phone number</label>
+                                                <input type="number" class="form-control" id="phone" name="phone" placeholder="Enter Phone Number">
+
                                             </div>
                                             <!-- <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -251,6 +318,66 @@
         $(this).append('<input type="hidden" id="passenger_number" name="passenger_number" value="" /> ');
         document.getElementById("passenger_number").value = passenger;
         return true;
+    });
+</script>
+
+<script>
+    function checkPass() {
+        //Store the password field objects into variables ...
+        var pass1 = document.getElementById('password1');
+        var pass2 = document.getElementById('password2');
+        //Store the Confimation Message Object ...
+        var message = document.getElementById('errpassword2');
+        //Set the colors we will be using ...
+        var goodColor = "#ffffff";
+        var badColor = "#ff6666";
+        //Compare the values in the password field 
+        //and the confirmation field
+        if (pass1.value == pass2.value) {
+            //The passwords match. 
+            //Set the color to the good color and inform
+            //the user that they have entered the correct password 
+            pass2.style.backgroundColor = goodColor;
+            message.style.color = goodColor;
+            // message.innerHTML = "Passwords Match!"
+        } else {
+            //The passwords do not match.
+            //Set the color to the bad color and
+            //notify the user.
+            pass2.style.backgroundColor = badColor;
+            message.style.color = badColor;
+            message.innerHTML = "Passwords Do Not Match!"
+        }
+        return pass1.value == pass2.value
+    }
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    $(document).ready(function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (checkPass() == false || form.checkValidity() === false) {
+                        var errList = ['email', 'password1', 'password2', 'firstName', 'lastName', 'card1'];
+                        var i = 0;
+                        var len = errList.length;
+                        for (; i < len; i++) {
+                            if (document.getElementById(errList[i]).value == "") {
+                                document.getElementById("err" + errList[i]).style.display = "block";
+                            } else {
+                                if (errList[i] != "password2")
+                                    document.getElementById("err" + errList[i]).style.display = "none";
+                            }
+                        }
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
     });
 </script>
 

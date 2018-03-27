@@ -13,8 +13,10 @@ from django.utils import timezone
 from django.db import connection
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .models import Flight, Airline, Customer, Airport, Customer, Account, ReservationInfo, RfRelation, ReservationFlight
+from .forms import RegisterForm
 # from .models import Question_new, Choice_new
 
 
@@ -25,6 +27,7 @@ def index_default(request):
     template = loader.get_template('polls/index.html')
     context = {
         'airports': airports,
+        'states': USA_STATE,
     }
     return HttpResponse(template.render(context, request))
 
@@ -35,9 +38,90 @@ def index_warning(request):
     template = loader.get_template('polls/index.html')
     context = {
         'airports': airports,
+        'states': USA_STATE,
         'warning': True,
     }
     return HttpResponse(template.render(context, request))
+
+
+def register(request):
+    '''
+    Register a new user
+    '''
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            print("form valid")
+            email = form.cleaned_data['email']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            card1 = form.cleaned_data['card1']
+            card2 = form.cleaned_data['card2']
+            card3 = form.cleaned_data['card3']
+            firstName = form.cleaned_data['firstName']
+            lastName = form.cleaned_data['lastName']
+            address = form.cleaned_data['address']
+            city = form.cleaned_data['city']
+            state = form.cleaned_data['state']
+            zipcode = form.cleaned_data['zip']
+            phone = form.cleaned_data['phone']
+            # Save cutomer
+            cus = Customer(
+                first_name=firstName,
+                last_name=lastName,
+                password=password1,
+                email=email,
+                address=address,
+                city=city,
+                state=state,
+                zip=zipcode,
+                phone=phone,
+            )
+            cus.save()
+            reservation_default = ReservationInfo.objects.get(
+                reservation_id=-1)
+            acc_id = 1
+            # Save account with credit card
+            account_1 = Account(
+                customer=cus,
+                account_id=acc_id,
+                reservation=reservation_default,
+                create_date=str(datetime.datetime.now().date()),
+                credit_card=card1
+            )
+            account_1.save()
+            acc_id = acc_id+1
+            if card2:
+                account_2 = Account(
+                    customer=cus,
+                    account_id=acc_id,
+                    reservation=reservation_default,
+                    create_date=str(datetime.datetime.now().date()),
+                    credit_card=card2
+                )
+                account_2.save()
+                acc_id = acc_id+1
+            if card3:
+                account_3 = Account(
+                    customer=cus,
+                    account_id=acc_id,
+                    reservation=reservation_default,
+                    create_date=str(datetime.datetime.now().date()),
+                    credit_card=card3
+                )
+                account_3.save()
+            # Create user in Django authentication syste,
+            user = User.objects.create_user(email, email, password1)
+            user.first_name = firstName
+            user.last_name = lastName
+            user.save()
+            # Login new register user
+            login(request, user)
+            print("correct")
+        else:
+            print("error: "+form.errors.as_json())
+            form = RegisterForm()
+    return HttpResponseRedirect(reverse('polls:index_default'))
 
 
 def login_page(request):
@@ -272,8 +356,54 @@ def customer(request):
         'customer': cus,
         'history': res_history,
         'current': res_current,
+        'states': USA_STATE,
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required(login_url='/polls/')
+def update_info(request):
+    '''
+    Update user information
+    Customer cannot change email address
+    '''
+    # Get current user
+    user = request.user
+    cus = Customer.objects.get(email=user.username)
+    password = request.POST['password']
+    if password:
+        cus.password = password
+        user.set_password(password)
+    first_name = request.POST['first_name']
+    if first_name:
+        cus.first_name = first_name
+        user.first_name = first_name
+    last_name = request.POST['last_name']
+    if last_name:
+        cus.last_name = last_name
+        user.last_name = last_name
+    phone = request.POST['phone']
+    if phone:
+        cus.phone = phone
+    address = request.POST['address']
+    if address:
+        cus.address = address
+    city = request.POST['city']
+    print(city)
+    if city:
+        cus.city = city
+    state = request.POST['state']
+    if state:
+        cus.state = state
+    zip = request.POST['zip']
+    if zip:
+        cus.zip = zip
+    preference = request.POST['preference']
+    if preference:
+        cus.preference = preference
+    user.save()
+    cus.save()
+    return HttpResponseRedirect(reverse('polls:customer'))
 
 
 @login_required(login_url='/polls/')
@@ -394,6 +524,60 @@ def getDayFromDate(date):
     day = date.split("-")[2]
     i = int(day)
     return i
+
+
+USA_STATE = [
+    "Alabama (AL)",
+    "Alaska (AK)",
+    "Arizona (AZ)",
+    "Arkansas (AR)",
+    "California (CA)",
+    "Colorado (CO)",
+    "Connecticut (CT)",
+    "Delaware (DE)",
+    "Florida (FL)",
+    "Georgia (GA)",
+    "Hawaii (HI)",
+    "Idaho (ID)",
+    "Illinois (IL)",
+    "Indiana (IN)",
+    "Iowa (IA)",
+    "Kansas (KS)",
+    "Kentucky (KY)",
+    "Louisiana (LA)",
+    "Maine (ME)",
+    "Maryland (MD)",
+    "Massachusetts (MA)",
+    "Michigan (MI)",
+    "Minnesota (MN)",
+    "Mississippi (MS)",
+    "Missouri (MO)",
+    "Montana (MT)",
+    "Nebraska (NE)",
+    "Nevada (NV)",
+    "New Hampshire (NH)",
+    "New Jersey (NJ)",
+    "New Mexico (NM)",
+    "New York (NY)",
+    "North Carolina (NC)",
+    "North Dakota (ND)",
+    "Ohio (OH)",
+    "Oklahoma (OK)",
+    "Oregon (OR)",
+    "Pennsylvania (PA)",
+    "Rhode Island (RI)",
+    "South Carolina (SC)",
+    "South Dakota (SD)",
+    "Tennessee (TN)",
+    "Texas (TX)",
+    "Utah (UT)",
+    "Vermont (VT)",
+    "Virginia (VA)",
+    "Washington (WA)",
+    "West Virginia (WV)",
+    "Wisconsin (WI)",
+    "Wyoming (WY)"
+]
 
 # class IndexView(generic.ListView):  # pylint: disable=too-many-ancestors
 #     """

@@ -31,6 +31,14 @@
     font-weight: 300;
 }
 
+#header #exampleModal #myTabContent #register .warning {
+    font-size: small;
+}
+
+#header #exampleModal #myTabContent #register label {
+    font-size: medium;
+}
+
 #selection {
     background: linear-gradient(
         rgba(0, 0, 0, 0.01),

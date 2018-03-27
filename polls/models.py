@@ -78,7 +78,7 @@ class Customer(models.Model):
         db_column='City', max_length=20, blank=True, null=True)
     # Field name made lowercase.
     state = models.CharField(
-        db_column='State', max_length=10, blank=True, null=True)
+        db_column='State', max_length=20, blank=True, null=True)
     # Field name made lowercase.
     zip = models.IntegerField(db_column='Zip', blank=True, null=True)
     # Field name made lowercase.
