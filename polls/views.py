@@ -59,6 +59,7 @@ def register(request):
         if form.is_valid():
             print("form valid")
             email = form.cleaned_data['email']
+            email = email.lower().strip()
             # No duplciate email are allowed
             exist = Customer.objects.get(email=email)
             if exist:
@@ -362,11 +363,17 @@ def customer(request):
     res_history = execute_custom_sql(his_query)
     cur_query = RAW_SQL['RES_CURRENT'].format(customer_id=cus.customer_id)
     res_current = execute_custom_sql(cur_query)
+    passengers = set()
+    for his in res_history:
+        passengers.add(his[7])
+    for cur in res_current:
+        passengers.add(cur[7])
     context = {
         'customer': cus,
         'history': res_history,
         'current': res_current,
         'states': USA_STATE,
+        'passengers': passengers,
     }
     return HttpResponse(template.render(context, request))
 
@@ -421,10 +428,24 @@ def manager(request):
     """For manager page"""
     template = loader.get_template('polls/manager_index.html')
     cus = Customer.objects.order_by('customer_id')
+    month = request.session.get('sales_report_month', "03")
+    sales_report_month = "2016-"+month+"%"
+    sales_report = get_sales_report(sales_report_month)
     context = {
         'customers': cus,
+        'sales_data': sales_report,
+        'sales_month': MONTH[month],
+        "tag": request.session.get('manager_tag', 0)
     }
+    request.session['manager_tag'] = 0
     return HttpResponse(template.render(context, request))
+
+
+@login_required(login_url='/polls/')
+def sales_month(request):
+    request.session['sales_report_month'] = request.POST['salesMonth']
+    request.session['manager_tag'] = 1
+    return HttpResponseRedirect(reverse('polls:manager'))
 
 
 def one_stop_flight(start, end, workday1, workday2):
@@ -440,6 +461,11 @@ def exist_passenger(fid, leave_date):
     return execute_custom_sql(query)
 
 
+def get_sales_report(month):
+    query = RAW_SQL['SALES_REPORT'].format(month=month)
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -451,6 +477,34 @@ def execute_custom_sql(s):
     cursor = connection.cursor()
     cursor.execute(s)
     return cursor.fetchall()
+
+
+def getTomorrowDate(date):
+    date = list(map(int, date.split("-")))
+    date[2] = date[2] + 1
+    if date[2] > 30:
+        date[2] = date[2]-30
+        date[1] = date[1]+1
+    if date[1] > 12:
+        date[1] = date[1]-12
+        date[0] = date[0]+1
+    result = str(date[0])+"-"
+    if date[1] < 10:
+        result = result + "0"
+    result = result + str(date[1])+"-"
+    if date[2] < 10:
+        result = result + "0"
+    result = result + str(date[2])
+    return result
+
+
+def getDayFromDate(date):
+    '''
+    Get day from date like 2018-03-01
+    '''
+    day = date.split("-")[2]
+    i = int(day)
+    return i
 
 
 RAW_SQL = {
@@ -505,36 +559,46 @@ RAW_SQL = {
                 Join RF_Relation rr USING (Reservation_ID, FID)
                 WHERE rr.FID={fid} and rr.leave_date = "{leave_date}";
             ''',
+    'SALES_REPORT': '''
+            SELECT a.Airline_name, Airline_ID, SUM(cost) AS Total_sales
+            FROM 
+                (
+                SELECT t2.Airline_ID, t2.Total_cost/COUNT(t2.Total_cost) AS cost, t2.dates
+                FROM
+                    (
+                    SELECT rl.Reservation_ID, t1.Total_cost, f.Airline_ID, t1.dates
+                    FROM RF_Relation rl
+                    JOIN
+                        (
+                        SELECT rf.Reservation_ID, rf.Total_cost, rf.Order_date AS dates
+                        FROM  Reservation_Info rf
+                        WHERE rf.order_date LIKE('{month}')
+                        ) t1
+                    ON rl.Reservation_ID = t1.Reservation_ID
+                    JOIN Flight f ON f.FID = rl.FID
+                    ) t2
+                GROUP BY t2.Reservation_ID, t2.Airline_ID, t2.dates
+                ) t3
+            JOIN Airline a USING (Airline_ID)
+            GROUP BY t3.Airline_ID
+            ORDER BY a.Airline_name;
+            ''',
 }
 
-
-def getTomorrowDate(date):
-    date = list(map(int, date.split("-")))
-    date[2] = date[2] + 1
-    if date[2] > 30:
-        date[2] = date[2]-30
-        date[1] = date[1]+1
-    if date[1] > 12:
-        date[1] = date[1]-12
-        date[0] = date[0]+1
-    result = str(date[0])+"-"
-    if date[1] < 10:
-        result = result + "0"
-    result = result + str(date[1])+"-"
-    if date[2] < 10:
-        result = result + "0"
-    result = result + str(date[2])
-    return result
-
-
-def getDayFromDate(date):
-    '''
-    Get day from date like 2018-03-01
-    '''
-    day = date.split("-")[2]
-    i = int(day)
-    return i
-
+MONTH = {
+    "01": "January",
+    "02": "Feburary",
+    "03": "March",
+    "04": "April",
+    "05": "May",
+    "06": "June",
+    "07": 'July',
+    "08": "August",
+    "09": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
+}
 
 USA_STATE = [
     "Alabama (AL)",

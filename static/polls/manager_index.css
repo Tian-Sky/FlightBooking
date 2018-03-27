@@ -153,6 +153,11 @@ a.article, a.article:hover {
     width: 100%;
 }
 
+#salesReport {
+    font-size: 200%;
+    margin-bottom: 20px;
+}
+
 
 /* ---------------------------------------------------
     MEDIAQUERIES
