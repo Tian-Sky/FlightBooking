@@ -1,0 +1,11 @@
+#all_content #flights p {
+    font-style: italic;
+}
+
+#sales_report form {
+    margin-bottom: -10px;
+}
+
+#select_airline {
+    margin-bottom: -20px;
+}

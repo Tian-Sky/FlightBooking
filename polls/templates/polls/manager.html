@@ -21,6 +21,7 @@
 </head>
 
 <body>
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/manager.css' %}" />
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">Manage Website</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -150,13 +151,24 @@
 
         <div class="section collapse" id="flights">
             <div class="card-header">
-                <form class="form-inline" action="{% url 'polls:get_all_flights' %}" method="post">{% csrf_token %}
-                    <div class="form-group mb-2">
-                        <label for="selectMonth" class="col-md-12 col-form-label">Fetch data for all flights </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary mb-2">Search</button>
-                </form>
-                <p>Data for all flights are large, it may take some time, please be patient</p>
+                <div class="text-center">
+                    <p>Data for all flights are too large to load, see flights by selecting airline company</p>
+                </div>
+                <div id="select_airline">
+                    <form class="form-inline" action="{% url 'polls:get_all_flights' %}" method="post">{% csrf_token %}
+                        <div class="form-group mb-2">
+                            <label for="selectMonth" class="col-md-12 col-form-label">Fetch flights data for airline company: </label>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select id="airline" name="airline" class="form-control">
+                                {% for airline in airlines %}
+                                <option value="{{airline}}">{{airline}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2">Search</button>
+                    </form>
+                </div>
             </div>
             <div class="card card-body">
                 <table id="flights_table" class="table table-striped table-bordered data-table">

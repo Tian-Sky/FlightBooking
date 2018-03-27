@@ -427,12 +427,21 @@ def update_info(request):
 def manager(request):
     """For manager page"""
     template = loader.get_template('polls/manager.html')
+    # For all customers
     cus = Customer.objects.order_by('customer_id')
     month = request.session.get('sales_report_month', "03")
+    # For sales report
     sales_report_month = "2016-"+month+"%"
     sales_report = get_sales_report(sales_report_month)
-    if request.session.get('flights_list', False):
-        flights = Flight.objects.filter()
+    # For flights by airline company
+    airline_query = Flight.objects.values_list(
+        'airline__airline_name').distinct()
+    airlines = set()
+    for air in airline_query:
+        airlines.add(air[0])
+    if request.session.get('airline', None) is not None:
+        flights = Flight.objects.filter(
+            airline__airline_name=request.session['airline'])
     else:
         flights = set()
     context = {
@@ -440,10 +449,10 @@ def manager(request):
         'sales_data': sales_report,
         'sales_month': MONTH[month],
         'tag': request.session.get('manager_tag', 0),
+        'airlines': airlines,
         'flights': flights,
     }
     request.session['manager_tag'] = 0
-    request.session['flight_list'] = False
     return HttpResponse(template.render(context, request))
 
 
@@ -456,7 +465,7 @@ def sales_month(request):
 
 @login_required(login_url='/polls/')
 def get_all_flights(request):
-    request.session['flights_list'] = True
+    request.session['airline'] = request.POST['airline']
     request.session['manager_tag'] = 2
     return HttpResponseRedirect(reverse('polls:manager'))
 
