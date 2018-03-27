@@ -426,7 +426,7 @@ def update_info(request):
 @login_required(login_url='/polls/')
 def manager(request):
     """For manager page"""
-    template = loader.get_template('polls/manager_index.html')
+    template = loader.get_template('polls/manager.html')
     cus = Customer.objects.order_by('customer_id')
     month = request.session.get('sales_report_month', "03")
     sales_report_month = "2016-"+month+"%"
