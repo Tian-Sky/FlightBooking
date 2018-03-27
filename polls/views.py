@@ -32,14 +32,20 @@ def index_default(request):
     return HttpResponse(template.render(context, request))
 
 
-def index_warning(request):
+def index_warning(request, warning_id):
     '''Substitiued by IndexView, which is a template provide by Django'''
     airports = Airport.objects.filter()
     template = loader.get_template('polls/index.html')
+    warning_info = ""
+    if warning_id == 1:
+        warning_info = "Wrong email and password combination!"
+    if warning_id == 2:
+        warning_info = "That email address already exist!"
     context = {
         'airports': airports,
         'states': USA_STATE,
         'warning': True,
+        'warning_info': warning_info,
     }
     return HttpResponse(template.render(context, request))
 
@@ -53,6 +59,10 @@ def register(request):
         if form.is_valid():
             print("form valid")
             email = form.cleaned_data['email']
+            # No duplciate email are allowed
+            exist = Customer.objects.get(email=email)
+            if exist:
+                return HttpResponseRedirect(reverse('polls:index_warning', args=(2,)))
             password1 = form.cleaned_data['password1']
             password2 = form.cleaned_data['password2']
             card1 = form.cleaned_data['card1']
@@ -137,7 +147,7 @@ def login_page(request):
         return HttpResponseRedirect(reverse('polls:index_default'))
     else:
         # Return an 'invalid login' error message.
-        return HttpResponseRedirect(reverse('polls:index_warning'))
+        return HttpResponseRedirect(reverse('polls:index_warning', args=(1,)))
 
 
 def logout_page(request):
