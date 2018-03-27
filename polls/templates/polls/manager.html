@@ -48,12 +48,12 @@
                         <a class="dropdown-item" href="#">Something else here</a>
                     </div>
                 </li>
-                <div style="float:right">
-                    <li class="nav-item">
-                        <a class="nav-link float-right" href="{% url 'polls:index_default' %}">Back to search page</a>
-                    </li>
-                </div>
             </ul>
+            <div>
+                <li class="nav-item ml-auto">
+                    <a class="nav-link float-right" href="{% url 'polls:index_default' %}" style="color:white">Back to search page</a>
+                </li>
+            </div>
         </div>
     </nav>
     <p hidden id="showTag">{% if tag == 1 %}sales_report{% else %}customers{% endif %}</p>
