@@ -86,6 +86,11 @@ body {
     opacity: 1; /* Firefox */
 }
 
+#best_seller_list {
+    overflow-x: scroll;
+    min-width: 1800px;
+}
+
 ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;

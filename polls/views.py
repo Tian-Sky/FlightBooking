@@ -269,11 +269,16 @@ def book(request):
         loop_times = int(request.session['passenger'])
     except ValueError:
         loop_times = 1
+    if flight.depart_airport.city != flight.arrive_airport.city:
+        national_info = "International  Travel"
+    else:
+        national_info = "Domestic  Travel"
     context = {
         'flight': flight,
         'passenger_loop_times': range(loop_times),
         'accounts': account_unique,
-        'duplicate_name': request.session['duplicate_name']
+        'duplicate_name': request.session['duplicate_name'],
+        'national_info': national_info,
     }
     return HttpResponse(template.render(context, request))
 
@@ -368,12 +373,23 @@ def customer(request):
         passengers.add(his[7])
     for cur in res_current:
         passengers.add(cur[7])
+    best_seller_list = get_best_seller()[:10]
+    best_list = set()
+    for data in best_seller_list:
+        a_n = Airline.objects.get(airline_id=data[2]).airline_name
+        d_name = Airport.objects.get(airport_id=data[4]).airport_name
+        d_p = "("+str(data[4])+") "+str(d_name)
+        p_name = Airport.objects.get(airport_id=data[5]).airport_name
+        a_p = "("+str(data[5])+") "+str(p_name)
+        best_list.add(data[0:2]+(a_n,)+(data[3],)+(d_p,)+(a_p,))
+    best_list = sorted(best_list, key=lambda best: best[1], reverse=True)
     context = {
         'customer': cus,
         'history': res_history,
         'current': res_current,
         'states': USA_STATE,
         'passengers': passengers,
+        'best_seller_list': best_list,
     }
     return HttpResponse(template.render(context, request))
 
@@ -595,6 +611,11 @@ def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     cursor.execute(query)
 
 
+def get_best_seller():
+    query = RAW_SQL['BEST_SELLER']
+    return execute_custom_sql(query)
+
+
 def execute_custom_sql(s):
     cursor = connection.cursor()
     cursor.execute(s)
@@ -790,6 +811,16 @@ RAW_SQL = {
                 WHERE c.Customer_ID = t1.CID
                 ORDER BY cost DESC;
             ''',
+    'BEST_SELLER': '''
+                SELECT t.fid, t.popularity, f.Airline_ID, f.Flight_ID, f.Depart_Airport, f.Arrive_Airport
+                FROM(
+                SELECT fid, count(*) as popularity from Reservation_Flight
+                group by FID
+                ) t 
+                JOIN Flight f
+                USING (fid)
+                ORDER BY t.popularity DESC, t.fid;
+            '''
 }
 
 MONTH = {

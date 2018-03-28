@@ -36,7 +36,7 @@
             <div id="flight">
                 <h5>
                     <img src="{% static 'polls/images/airplane.png' %}">{{ flight.depart_airport.city }}, {{ flight.depart_airport.country }} - {{ flight.arrive_airport.city}},
-                    {{ flight.arrive_airport.country }} &nbsp; &nbsp; &nbsp;{{ flight.workday }}</h5>
+                    {{ flight.arrive_airport.country }} &nbsp; &nbsp; &nbsp;{{ flight.workday }} &nbsp; &nbsp; &nbsp; {{national_info}}</h5>
                 <table class="table table-striped">
                     <thead>
                         <tr>
