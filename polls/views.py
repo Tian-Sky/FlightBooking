@@ -444,13 +444,26 @@ def manager(request):
             airline__airline_name=request.session['airline'])
     else:
         flights = set()
+    # For reservations search with flight
+    fid = request.session.get('reservation_search_flights', -1)
+    reservation_search_flights = query_reservations_with_flight(fid)
+    # For reservations search with customer
+    first_name = request.session.get(
+        'reservation_search_customer_first_name', "")
+    last_name = request.session.get(
+        'reservation_search_customer_last_name', "")
+    reservation_search_customer = query_reservation_with_customer(
+        first_name, last_name)
     context = {
         'customers': cus,
         'sales_data': sales_report,
         'sales_month': MONTH[month],
-        'tag': request.session.get('manager_tag', 0),
         'airlines': airlines,
         'flights': flights,
+        'reservation_search_flights': reservation_search_flights,
+        'reservation_search_customer': reservation_search_customer,
+        'tag': manager_tag(request.session['manager_tag']),
+        'TABLE_COLUMNS': TABLE_COLUMNS,
     }
     request.session['manager_tag'] = 0
     return HttpResponse(template.render(context, request))
@@ -467,6 +480,21 @@ def sales_month(request):
 def get_all_flights(request):
     request.session['airline'] = request.POST['airline']
     request.session['manager_tag'] = 2
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+@login_required(login_url='/polls/')
+def get_reservations_with_flight(request):
+    request.session['reservation_search_flights'] = request.POST['reservation_search_flights']
+    request.session['manager_tag'] = 3
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+@login_required(login_url='/polls/')
+def get_reservations_with_customer(request):
+    request.session['reservation_search_customer_first_name'] = request.POST['reservation_search_customer_first_name']
+    request.session['reservation_search_customer_last_name'] = request.POST['reservation_search_customer_last_name']
+    request.session['manager_tag'] = 4
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
@@ -488,6 +516,17 @@ def get_sales_report(month):
     return execute_custom_sql(query)
 
 
+def query_reservations_with_flight(fid):
+    query = RAW_SQL['RESERVATION_WITH_FLIGHT'].format(fid=fid)
+    return execute_custom_sql(query)
+
+
+def query_reservation_with_customer(first_name, last_name):
+    query = RAW_SQL['RESERVATION_WITH_CUSTOMER'].format(
+        first_name=first_name, last_name=last_name)
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -499,6 +538,15 @@ def execute_custom_sql(s):
     cursor = connection.cursor()
     cursor.execute(s)
     return cursor.fetchall()
+
+
+def manager_tag(tag):
+    return {
+        1: "sales_report",
+        2: "flights",
+        3: "reservations_flight",
+        4: "reservations_customer",
+    }.get(tag, "customers")
 
 
 def getTomorrowDate(date):
@@ -582,28 +630,60 @@ RAW_SQL = {
                 WHERE rr.FID={fid} and rr.leave_date = "{leave_date}";
             ''',
     'SALES_REPORT': '''
-            SELECT a.Airline_name, Airline_ID, SUM(cost) AS Total_sales
-            FROM 
-                (
-                SELECT t2.Airline_ID, t2.Total_cost/COUNT(t2.Total_cost) AS cost, t2.dates
-                FROM
+                SELECT a.Airline_name, Airline_ID, SUM(cost) AS Total_sales
+                FROM 
                     (
-                    SELECT rl.Reservation_ID, t1.Total_cost, f.Airline_ID, t1.dates
-                    FROM RF_Relation rl
+                    SELECT t2.Airline_ID, t2.Total_cost/COUNT(t2.Total_cost) AS cost, t2.dates
+                    FROM
+                        (
+                        SELECT rl.Reservation_ID, t1.Total_cost, f.Airline_ID, t1.dates
+                        FROM RF_Relation rl
+                        JOIN
+                            (
+                            SELECT rf.Reservation_ID, rf.Total_cost, rf.Order_date AS dates
+                            FROM  Reservation_Info rf
+                            WHERE rf.order_date LIKE('{month}')
+                            ) t1
+                        ON rl.Reservation_ID = t1.Reservation_ID
+                        JOIN Flight f ON f.FID = rl.FID
+                        ) t2
+                    GROUP BY t2.Reservation_ID, t2.Airline_ID, t2.dates
+                    ) t3
+                JOIN Airline a USING (Airline_ID)
+                GROUP BY t3.Airline_ID
+                ORDER BY a.Airline_name;
+            ''',
+    'RESERVATION_WITH_FLIGHT': '''
+                SELECT rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, ri.Total_cost,
+                        ri.Leave_date, f.Depart_Airport, f.Arrive_Airport, rf.P_name, 
+                        rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                FROM Reservation_Flight rf
+                JOIN Flight f ON rf.FID = f.FID
+                JOIN Reservation_Info ri ON rf.Reservation_ID = ri.Reservation_ID
+                WHERE rf.FID = {fid};
+            ''',
+    'RESERVATION_WITH_CUSTOMER': '''
+                SELECT rf.Reservation_ID, rf.FID, ri.order_date, 
+                    ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
+                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                FROM Reservation_Flight rf
+                JOIN RF_Relation r ON r.Reservation_ID = rf.Reservation_ID
+                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
+                JOIN Flight f ON f.FID = rf.FID
+                JOIN
+                    (
+                    SELECT a.Reservation_ID, t1.First_name, t1.Last_name
+                    FROM Account a
                     JOIN
                         (
-                        SELECT rf.Reservation_ID, rf.Total_cost, rf.Order_date AS dates
-                        FROM  Reservation_Info rf
-                        WHERE rf.order_date LIKE('{month}')
+                        SELECT c.Customer_ID, c.First_name, c.Last_name
+                        FROM Customer c
+                        WHERE c.First_name="{first_name}" and c.Last_name="{last_name}"
                         ) t1
-                    ON rl.Reservation_ID = t1.Reservation_ID
-                    JOIN Flight f ON f.FID = rl.FID
-                    ) t2
-                GROUP BY t2.Reservation_ID, t2.Airline_ID, t2.dates
-                ) t3
-            JOIN Airline a USING (Airline_ID)
-            GROUP BY t3.Airline_ID
-            ORDER BY a.Airline_name;
+                    ON a.Customer_ID = t1.Customer_ID
+                    ) t3
+                ON rf.Reservation_ID = t3.Reservation_ID
+                ORDER BY rf.Reservation_ID DESC;
             ''',
 }
 
@@ -674,6 +754,24 @@ USA_STATE = [
     "Wisconsin (WI)",
     "Wyoming (WY)"
 ]
+
+TABLE_COLUMNS = {
+    'Reservation_Info': [
+        "FID",
+        "Airline_ID",
+        "Flight_ID",
+        "Order_date",
+        "Total_cost",
+        "Leave_date",
+        "Depart_airport",
+        "Arrive_Airport",
+        "P_name",
+        "P_meal",
+        "P_class",
+        "Price",
+        "Representative"
+    ],
+}
 
 # class IndexView(generic.ListView):  # pylint: disable=too-many-ancestors
 #     """

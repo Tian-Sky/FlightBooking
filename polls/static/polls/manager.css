@@ -9,3 +9,8 @@
 #select_airline {
     margin-bottom: -20px;
 }
+
+#reservations {
+    width: 1500px;
+    margin: 0 auto;
+}

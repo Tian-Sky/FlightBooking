@@ -27,4 +27,8 @@ urlpatterns = [
     path('update_info', views.update_info, name="update_info"),
     path('sales_month', views.sales_month, name="sales_month"),
     path('get_all_flights', views.get_all_flights, name="get_all_flights"),
+    path('get_reservations_with_flight', views.get_reservations_with_flight,
+         name='get_reservations_with_flight'),
+    path('get_reservations_with_customer', views.get_reservations_with_customer,
+         name='get_reservations_with_customer'),
 ]
