@@ -475,7 +475,7 @@ def manager(request):
         'flight_airports': flight_airports,
         'reservation_search_flights': reservation_search_flights,
         'reservation_search_customer': reservation_search_customer,
-        'tag': manager_tag(request.session['manager_tag']),
+        'tag': manager_tag(request.session.get('manager_tag',0)),
         'TABLE_COLUMNS': TABLE_COLUMNS,
     }
     request.session['manager_tag'] = 0
