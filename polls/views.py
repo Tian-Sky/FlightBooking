@@ -454,12 +454,16 @@ def manager(request):
         'reservation_search_customer_last_name', "")
     reservation_search_customer = query_reservation_with_customer(
         first_name, last_name)
+    # For delay flights
+    delay_month = request.session.get('delay_month', "08")
+    delay_flights = query_delay_flights(delay_month)
     context = {
         'customers': cus,
         'sales_data': sales_report,
         'sales_month': MONTH[month],
         'airlines': airlines,
         'flights': flights,
+        'delay_flights': delay_flights,
         'reservation_search_flights': reservation_search_flights,
         'reservation_search_customer': reservation_search_customer,
         'tag': manager_tag(request.session['manager_tag']),
@@ -498,6 +502,13 @@ def get_reservations_with_customer(request):
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
+@login_required(login_url='/polls/')
+def get_delay_flights(request):
+    request.session['delay_month'] = request.POST['delay_month']
+    request.session['manager_tag'] = 5
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
 def one_stop_flight(start, end, workday1, workday2):
     query = RAW_SQL['ONE_STOP_FLIGHT'].format(start_airport=start, end_airport=end, workday1=workday1,
                                               workday2=workday2)
@@ -527,6 +538,11 @@ def query_reservation_with_customer(first_name, last_name):
     return execute_custom_sql(query)
 
 
+def query_delay_flights(month):
+    query = RAW_SQL['DELAY_FLIGHTS'].format(month=month)
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -546,6 +562,7 @@ def manager_tag(tag):
         2: "flights",
         3: "reservations_flight",
         4: "reservations_customer",
+        5: "delay_flights",
     }.get(tag, "customers")
 
 
@@ -654,8 +671,8 @@ RAW_SQL = {
                 ORDER BY a.Airline_name;
             ''',
     'RESERVATION_WITH_FLIGHT': '''
-                SELECT rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, ri.Total_cost,
-                        ri.Leave_date, f.Depart_Airport, f.Arrive_Airport, rf.P_name, 
+                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, ri.Total_cost,
+                        ri.Leave_date, f.Depart_Airport, f.Arrive_Airport, rf.P_name, rf.P_seat,
                         rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
                 JOIN Flight f ON rf.FID = f.FID
@@ -663,7 +680,7 @@ RAW_SQL = {
                 WHERE rf.FID = {fid};
             ''',
     'RESERVATION_WITH_CUSTOMER': '''
-                SELECT rf.Reservation_ID, rf.FID, ri.order_date, 
+                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, 
                     ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
                     rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
@@ -684,6 +701,13 @@ RAW_SQL = {
                     ) t3
                 ON rf.Reservation_ID = t3.Reservation_ID
                 ORDER BY rf.Reservation_ID DESC;
+            ''',
+    'DELAY_FLIGHTS': '''
+                SELECT f.FID, d.Delay_date ,f.Depart_Airport, f.Arrive_Airport, d.Delay_time
+                FROM Flight f, Delay d
+                WHERE f.FID = d.FID and d.Delay_date LIKE('2017-{month}%')
+                AND d.Delay_time <> '00:00:00'
+                ORDER BY d.Delay_date, f.FID;
             ''',
 }
 
@@ -757,6 +781,7 @@ USA_STATE = [
 
 TABLE_COLUMNS = {
     'Reservation_Info': [
+        "Reservation_ID",
         "FID",
         "Airline_ID",
         "Flight_ID",
@@ -766,11 +791,19 @@ TABLE_COLUMNS = {
         "Depart_airport",
         "Arrive_Airport",
         "P_name",
+        "p_seat",
         "P_meal",
         "P_class",
         "Price",
         "Representative"
     ],
+    'Delay_Flights': [
+        "FID",
+        "Delay_Date",
+        "Depart_Airport",
+        "Arrive_Airport",
+        "Delay_time"
+    ]
 }
 
 # class IndexView(generic.ListView):  # pylint: disable=too-many-ancestors
