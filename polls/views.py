@@ -457,13 +457,22 @@ def manager(request):
     # For delay flights
     delay_month = request.session.get('delay_month', "08")
     delay_flights = query_delay_flights(delay_month)
+    # For flights by airport
+    airport_query = Airport.objects.values("airport_id", "airport_name")
+    airports = {}
+    for q in airport_query:
+        airports[q['airport_id']] = q['airport_name']
+    search_airport = request.session.get('flight_airport', "AMS")
+    flight_airports = Flight.objects.filter(Q(depart_airport = search_airport)|Q(arrive_airport=search_airport))
     context = {
         'customers': cus,
         'sales_data': sales_report,
         'sales_month': MONTH[month],
         'airlines': airlines,
+        'airports': airports,
         'flights': flights,
         'delay_flights': delay_flights,
+        'flight_airports': flight_airports,
         'reservation_search_flights': reservation_search_flights,
         'reservation_search_customer': reservation_search_customer,
         'tag': manager_tag(request.session['manager_tag']),
@@ -509,6 +518,12 @@ def get_delay_flights(request):
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
+def get_airport_flights(request):
+    request.session['flight_airport'] = request.POST['airport']
+    request.session['manager_tag'] = 6
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
 def one_stop_flight(start, end, workday1, workday2):
     query = RAW_SQL['ONE_STOP_FLIGHT'].format(start_airport=start, end_airport=end, workday1=workday1,
                                               workday2=workday2)
@@ -543,6 +558,11 @@ def query_delay_flights(month):
     return execute_custom_sql(query)
 
 
+def query_airport_flights(airport):
+    query = RAW_SQL['AIRPORT_FLIGHTS'].format(airport=airport)
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -563,6 +583,7 @@ def manager_tag(tag):
         3: "reservations_flight",
         4: "reservations_customer",
         5: "delay_flights",
+        6: "airport_flights",
     }.get(tag, "customers")
 
 
@@ -638,17 +659,18 @@ RAW_SQL = {
             ''',
     'INSERT_RES_FLIGHT': '''
                 INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
-                VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})
+                VALUES ({Reservation_ID}, {FID}, "{P_name}", {
+                        P_seat}, "{P_meal}", "{P_class}", {Price})
             ''',
     'SEARCH_EXIST_PASSENGER': '''
-                Select rf.P_name 
+                Select rf.P_name
                 from Reservation_Flight rf
                 Join RF_Relation rr USING (Reservation_ID, FID)
                 WHERE rr.FID={fid} and rr.leave_date = "{leave_date}";
             ''',
     'SALES_REPORT': '''
                 SELECT a.Airline_name, Airline_ID, SUM(cost) AS Total_sales
-                FROM 
+                FROM
                     (
                     SELECT t2.Airline_ID, t2.Total_cost/COUNT(t2.Total_cost) AS cost, t2.dates
                     FROM
@@ -680,7 +702,7 @@ RAW_SQL = {
                 WHERE rf.FID = {fid};
             ''',
     'RESERVATION_WITH_CUSTOMER': '''
-                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, 
+                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date,
                     ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
                     rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
@@ -709,6 +731,11 @@ RAW_SQL = {
                 AND d.Delay_time <> '00:00:00'
                 ORDER BY d.Delay_date, f.FID;
             ''',
+    'AIRPORT_FLIGHTS': '''
+                SELECT f.FID, f.Depart_Airport, f.Arrive_Airport 
+                FROM Flight f
+                WHERE f.Depart_Airport = '{airport}' OR f.Arrive_Airport = '{airport}';
+            '''
 }
 
 MONTH = {

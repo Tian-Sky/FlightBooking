@@ -33,4 +33,6 @@ urlpatterns = [
          name='get_reservations_with_customer'),
     path('get_delay_flights', views.get_delay_flights,
          name='get_delay_flights'),
+    path('get_airport_flights', views.get_airport_flights,
+         name='get_airport_flights'),
 ]
