@@ -1,5 +1,6 @@
 '''Views for app polls'''
 import datetime
+import random
 from django.shortcuts import render
 # Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect
@@ -177,6 +178,12 @@ def search(request):
     leave_date_tom = getTomorrowDate(leave_date)
     leave_day = getDayFromDate(leave_date)
 
+    # Get discount
+    current_date = datetime.datetime.now()
+    date_delta = datetime.datetime.strptime(
+        leave_date, '%Y-%m-%d')-current_date
+    request.session['discount'] = getDiscount(date_delta.days)
+
     return_date = (timezone.now() + datetime.timedelta(days=1)
                    ) if request.POST['return'] is None else request.POST['return']
     return_day = getDayFromDate(return_date)
@@ -191,6 +198,8 @@ def search(request):
         else:
             d_f.workday = leave_date_tom
         d_f.id = str(i)
+        d_f.fare = d_f.fare*request.session['discount']
+        print(d_f.fare)
         # Put direct flight FID into into session for book use
         # We also need to save leave date
         request.session['direct_flight'][i] = str(d_f.fid)+","+d_f.workday
@@ -239,6 +248,7 @@ def book(request):
         fid = request.session['book_fid']
         date = request.session['leave_date']
     flight = Flight.objects.get(fid=fid)
+    flight.fare = flight.fare*request.session['discount']
     flight.workday = date
     if flight.arrive_time.hour < flight.depart_time.hour:
         flight.arrive_date = getTomorrowDate(flight.workday)
@@ -325,7 +335,8 @@ def buy(request):
     # Order date, which is todyday
     order_date = str(datetime.datetime.now().date())
     # Total cost for this reservation
-    total_cost = loop_times * int(request.POST['cost'])
+    total_cost = loop_times * \
+        int(request.POST['cost']*request.session['discount'])
     book_fee = int(total_cost*0.1)
     RI = ReservationInfo(order_date=order_date, total_cost=total_cost,
                          book_fee=book_fee, leave_date=leave_date, representative_id="Xinzhang")
@@ -349,8 +360,9 @@ def buy(request):
         name = str(request.POST["name"+str(index)])
         meal = request.POST["meal"+str(index)]
         cla = request.POST["class"+str(index)]
+        final_price = int(request.POST['cost']*request.session['discount'])
         insert_passenger_info(
-            RI.reservation_id, F.fid, name, index, meal, cla, request.POST['cost'])
+            RI.reservation_id, F.fid, name, random.randint(1, F.capacity), meal, cla, final_price)
     return HttpResponseRedirect(reverse('polls:customer'))
 
 
@@ -633,6 +645,21 @@ def manager_tag(tag):
         7: "reserved_customers",
         8: "customer_revenue",
     }.get(tag, "customers")
+
+
+def getDiscount(delta):
+    if delta < 3:
+        return 1
+    elif delta < 7:
+        return 0.95
+    elif delta < 14:
+        return 0.9
+    elif delta < 21:
+        return 0.8
+    elif delta < 30:
+        return 0.75
+    else:
+        return 0.7
 
 
 def getTomorrowDate(date):
