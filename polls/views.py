@@ -462,8 +462,14 @@ def manager(request):
     airports = {}
     for q in airport_query:
         airports[q['airport_id']] = q['airport_name']
-    search_airport = request.session.get('flight_airport', "AMS")
-    flight_airports = Flight.objects.filter(Q(depart_airport = search_airport)|Q(arrive_airport=search_airport))
+    search_airport = request.session.get('flight_airport', "")
+    flight_airports = Flight.objects.filter(
+        Q(depart_airport=search_airport) | Q(arrive_airport=search_airport))
+    # For customers on particualr flight
+    reserved_fid = request.session.get('reserved_fid', -1)
+    reserved_customers = query_reserved_customers(reserved_fid)
+    # For customer revenue
+    customer_revenue = query_customer_revenue()
     context = {
         'customers': cus,
         'sales_data': sales_report,
@@ -473,37 +479,35 @@ def manager(request):
         'flights': flights,
         'delay_flights': delay_flights,
         'flight_airports': flight_airports,
+        'reserved_customers': reserved_customers,
+        'customer_revenue': customer_revenue,
         'reservation_search_flights': reservation_search_flights,
         'reservation_search_customer': reservation_search_customer,
-        'tag': manager_tag(request.session.get('manager_tag',0)),
+        'tag': manager_tag(request.session.get('manager_tag', 0)),
         'TABLE_COLUMNS': TABLE_COLUMNS,
     }
     request.session['manager_tag'] = 0
     return HttpResponse(template.render(context, request))
 
 
-@login_required(login_url='/polls/')
 def sales_month(request):
     request.session['sales_report_month'] = request.POST['salesMonth']
     request.session['manager_tag'] = 1
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
-@login_required(login_url='/polls/')
 def get_all_flights(request):
     request.session['airline'] = request.POST['airline']
     request.session['manager_tag'] = 2
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
-@login_required(login_url='/polls/')
 def get_reservations_with_flight(request):
     request.session['reservation_search_flights'] = request.POST['reservation_search_flights']
     request.session['manager_tag'] = 3
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
-@login_required(login_url='/polls/')
 def get_reservations_with_customer(request):
     request.session['reservation_search_customer_first_name'] = request.POST['reservation_search_customer_first_name']
     request.session['reservation_search_customer_last_name'] = request.POST['reservation_search_customer_last_name']
@@ -511,7 +515,6 @@ def get_reservations_with_customer(request):
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
-@login_required(login_url='/polls/')
 def get_delay_flights(request):
     request.session['delay_month'] = request.POST['delay_month']
     request.session['manager_tag'] = 5
@@ -521,6 +524,18 @@ def get_delay_flights(request):
 def get_airport_flights(request):
     request.session['flight_airport'] = request.POST['airport']
     request.session['manager_tag'] = 6
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+def get_reserved_customers(request):
+    request.session['reserved_fid'] = request.POST['reserved_fid']
+    request.session['manager_tag'] = 7
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+def get_customer_revenue(request):
+    request.session['customer_revenue'] = request.POST['customer_revenue']
+    request.session['manager_tag'] = 8
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
@@ -563,6 +578,16 @@ def query_airport_flights(airport):
     return execute_custom_sql(query)
 
 
+def query_reserved_customers(fid):
+    query = RAW_SQL['RESERVED_CUSTOMERS'].format(fid=fid)
+    return execute_custom_sql(query)
+
+
+def query_customer_revenue():
+    query = RAW_SQL['CUSTOMER_REVENUE']
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -584,6 +609,8 @@ def manager_tag(tag):
         4: "reservations_customer",
         5: "delay_flights",
         6: "airport_flights",
+        7: "reserved_customers",
+        8: "customer_revenue",
     }.get(tag, "customers")
 
 
@@ -735,7 +762,34 @@ RAW_SQL = {
                 SELECT f.FID, f.Depart_Airport, f.Arrive_Airport 
                 FROM Flight f
                 WHERE f.Depart_Airport = '{airport}' OR f.Arrive_Airport = '{airport}';
-            '''
+            ''',
+    'RESERVED_CUSTOMERS': '''
+                SELECT c.Customer_ID, c.First_name, c.Last_name, c.Email 
+                FROM Customer c
+                WHERE c.Customer_ID IN
+                    (
+                    SELECT a.Customer_ID 
+                    FROM Account a 
+                    where a.Reservation_ID IN
+                    (
+                    SELECT DISTINCT rf.Reservation_ID 
+                    FROM Reservation_Flight rf
+                    WHERE rf.FID = {fid}
+                    )
+                );
+            ''',
+    'CUSTOMER_REVENUE': '''
+                SELECT c.Customer_ID, c.First_name, c.Last_name, c.Email, t1.cost
+                FROM Customer c,
+                (
+                    SELECT a.Customer_ID AS CID, SUM(ri.Total_cost) AS cost
+                    FROM Account a, Reservation_Info ri
+                    WHERE a.Reservation_ID = ri.Reservation_ID
+                    GROUP BY a.Customer_ID
+                ) t1
+                WHERE c.Customer_ID = t1.CID
+                ORDER BY cost DESC;
+            ''',
 }
 
 MONTH = {
@@ -808,28 +862,41 @@ USA_STATE = [
 
 TABLE_COLUMNS = {
     'Reservation_Info': [
-        "Reservation_ID",
+        "Reservation ID",
         "FID",
-        "Airline_ID",
-        "Flight_ID",
-        "Order_date",
-        "Total_cost",
-        "Leave_date",
-        "Depart_airport",
-        "Arrive_Airport",
-        "P_name",
-        "p_seat",
-        "P_meal",
-        "P_class",
+        "Airline ID",
+        "Flight ID",
+        "Order Date",
+        "Total Cost",
+        "Leave Date",
+        "Depart Airport",
+        "Arrive Airport",
+        "Name",
+        "Seat",
+        "Meal",
+        "Class",
         "Price",
         "Representative"
     ],
     'Delay_Flights': [
         "FID",
-        "Delay_Date",
-        "Depart_Airport",
-        "Arrive_Airport",
-        "Delay_time"
+        "Delay Date",
+        "Depart Airport",
+        "Arrive Airport",
+        "Delay time"
+    ],
+    'Reserved_Customers': [
+        "Customer ID",
+        "First Name",
+        "Last Name",
+        "Email"
+    ],
+    'Customer_Revenue': [
+        "Customer ID",
+        "First Name",
+        "Last Name",
+        "Email",
+        "Total Payment (Revenue)"
     ]
 }
 
