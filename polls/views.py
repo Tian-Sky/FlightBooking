@@ -498,8 +498,12 @@ def manager(request):
     reserved_customers = query_reserved_customers(reserved_fid)
     # For customer revenue
     customer_revenue = query_customer_revenue()
+    # For manager change customer information
+    manage_customer_id = request.session.get('manager_update_customer_id', -1)
+    manage_customer = Customer.objects.get(customer_id=manage_customer_id)
     context = {
         'customers': cus,
+        'manage_customer': manage_customer,
         'sales_data': sales_report,
         'sales_month': MONTH[month],
         'airlines': airlines,
@@ -513,6 +517,7 @@ def manager(request):
         'reservation_search_customer': reservation_search_customer,
         'tag': manager_tag(request.session.get('manager_tag', 0)),
         'TABLE_COLUMNS': TABLE_COLUMNS,
+        'states': USA_STATE,
     }
     request.session['manager_tag'] = 0
     return HttpResponse(template.render(context, request))
@@ -564,6 +569,71 @@ def get_reserved_customers(request):
 def get_customer_revenue(request):
     request.session['customer_revenue'] = request.POST['customer_revenue']
     request.session['manager_tag'] = 8
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+def get_manage_customer_id(request):
+    first = request.POST['manage_customer_first_name']
+    last = request.POST['manage_customer_last_name']
+    try:
+        c_id = Customer.objects.get(
+            first_name=first, last_name=last).customer_id
+    except:
+        c_id = -1
+    request.session['manager_update_customer_id'] = c_id
+    request.session['manager_tag'] = 9
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+def manager_update_user(request):
+    cus = Customer.objects.get(customer_id=request.POST['customer_id'])
+    user = User.objects.get(email=cus.email)
+    password = request.POST['password']
+    if password:
+        cus.password = password
+        user.set_password(password)
+    first_name = request.POST['first_name']
+    if first_name:
+        cus.first_name = first_name
+        user.first_name = first_name
+    last_name = request.POST['last_name']
+    if last_name:
+        cus.last_name = last_name
+        user.last_name = last_name
+    phone = request.POST['phone']
+    if phone:
+        cus.phone = phone
+    address = request.POST['address']
+    if address:
+        cus.address = address
+    city = request.POST['city']
+    print(city)
+    if city:
+        cus.city = city
+    state = request.POST['state']
+    if state:
+        cus.state = state
+    zip = request.POST['zip']
+    if zip:
+        cus.zip = zip
+    preference = request.POST['preference']
+    if preference:
+        cus.preference = preference
+    user.save()
+    cus.save()
+    request.session['manager_tag'] = 9
+    return HttpResponseRedirect(reverse('polls:manager'))
+
+
+def manager_delete_customer(request):
+    if request.session.get('manager_update_customer_id', -1) != -1:
+        c_id = request.session['manager_update_customer_id']
+        cus = Customer.objects.get(customer_id=c_id)
+        user = User.objects.get(email=cus.email)
+        cus.delete()
+        user.delete()
+        request.session['manager_update_customer_id'] = -1
+        request.session['manager_tag'] = 9
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
@@ -644,6 +714,7 @@ def manager_tag(tag):
         6: "airport_flights",
         7: "reserved_customers",
         8: "customer_revenue",
+        9: "customer_info",
     }.get(tag, "customers")
 
 

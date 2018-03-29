@@ -37,4 +37,10 @@ urlpatterns = [
          name='get_airport_flights'),
     path('get_reserved_customers', views.get_reserved_customers,
          name='get_reserved_customers'),
+    path('manager_update_user', views.manager_update_user,
+         name='manager_update_user'),
+    path('get_manage_customer_id', views.get_manage_customer_id,
+         name='get_manage_customer_id'),
+    path('manager_delete_customer', views.manager_delete_customer,
+         name='manager_delete_customer'),
 ]
