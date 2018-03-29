@@ -501,6 +501,10 @@ def manager(request):
     # For manager change customer information
     manage_customer_id = request.session.get('manager_update_customer_id', -1)
     manage_customer = Customer.objects.get(customer_id=manage_customer_id)
+    # For revenue by flights
+    revenue_by_flights = query_revenue_by_flights()
+    # For revenue by airports
+    revenue_by_airports = query_revenue_by_airports()
     context = {
         'customers': cus,
         'manage_customer': manage_customer,
@@ -513,6 +517,8 @@ def manager(request):
         'flight_airports': flight_airports,
         'reserved_customers': reserved_customers,
         'customer_revenue': customer_revenue,
+        'revenue_by_flights': revenue_by_flights,
+        'revenue_by_airports': revenue_by_airports,
         'reservation_search_flights': reservation_search_flights,
         'reservation_search_customer': reservation_search_customer,
         'tag': manager_tag(request.session.get('manager_tag', 0)),
@@ -563,12 +569,6 @@ def get_airport_flights(request):
 def get_reserved_customers(request):
     request.session['reserved_fid'] = request.POST['reserved_fid']
     request.session['manager_tag'] = 7
-    return HttpResponseRedirect(reverse('polls:manager'))
-
-
-def get_customer_revenue(request):
-    request.session['customer_revenue'] = request.POST['customer_revenue']
-    request.session['manager_tag'] = 8
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
@@ -686,6 +686,16 @@ def query_customer_revenue():
     return execute_custom_sql(query)
 
 
+def query_revenue_by_flights():
+    query = RAW_SQL['REVENUE_BY_FLIGHTS']
+    return execute_custom_sql(query)
+
+
+def query_revenue_by_airports():
+    query = RAW_SQL['REVENUE_BY_AIRPORTS']
+    return execute_custom_sql(query)
+
+
 def insert_passenger_info(RID, FID, name, seat, meal, cla, price):
     query = RAW_SQL['INSERT_RES_FLIGHT'].format(
         Reservation_ID=RID, FID=FID, P_name=name, P_seat=seat, P_meal=meal, P_class=cla, Price=price)
@@ -700,7 +710,10 @@ def get_best_seller():
 
 def execute_custom_sql(s):
     cursor = connection.cursor()
-    cursor.execute(s)
+    try:
+        cursor.execute(s)
+    except:
+        return set()
     return cursor.fetchall()
 
 
@@ -918,7 +931,28 @@ RAW_SQL = {
                 JOIN Flight f
                 USING (fid)
                 ORDER BY t.popularity DESC, t.fid;
-            '''
+            ''',
+    'REVENUE_BY_FLIGHTS': '''
+                SELECT DISTINCT rf.FID, a.airline_id, a.airline_name, f.flight_id, sum(ri.total_cost) as total_revenue
+                FROM Reservation_Flight rf
+                JOIN RF_Relation rl ON rl.Reservation_ID = rf.Reservation_ID
+                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
+                JOIN Flight f ON f.FID = rf.FID
+                JOIN Airline a on a.Airline_ID = f.airline_id
+                group by rf.fid, a.airline_name, f.Flight_ID
+                order by total_revenue desc, rf.FID, a.airline_id
+                LIMIT 100;
+            ''',
+    'REVENUE_BY_AIRPORTS': '''
+                SELECT ap.Airport_ID, ap.Airport_name, ap.city, ap.country, sum(ri.total_cost) as total_revenue
+                FROM Reservation_Flight rf
+                JOIN RF_Relation rl ON rl.Reservation_ID = rf.Reservation_ID
+                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
+                JOIN Flight f ON f.FID = rf.FID
+                JOIN Airport ap on ap.Airport_ID = f.Arrive_Airport
+                group by ap.Airport_ID, ap.Airport_name, ap.city, ap.country
+                order by total_revenue desc, ap.Airport_ID;
+            ''',
 }
 
 MONTH = {
@@ -1026,6 +1060,20 @@ TABLE_COLUMNS = {
         "Last Name",
         "Email",
         "Total Payment (Revenue)"
+    ],
+    'Revenue_by_flights': [
+        "FID",
+        "Airline ID",
+        "Airline Name",
+        "Flight_ID",
+        "Total Revenue"
+    ],
+    'Revenue_by_airports': [
+        "Aairport ID",
+        "Airport Name",
+        "City",
+        "Country",
+        "Total Revenue"
     ]
 }
 
