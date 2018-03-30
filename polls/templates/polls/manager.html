@@ -698,24 +698,4 @@
     $('#nav_' + tag).closest('li').addClass('active');
 </script>
 
-<!-- <script>
-    $("#nav_active_flights").click(function () {
-        $.ajax({
-            url: '{% url "polls:manager_most_active_flight" %}',
-            dataType: 'json',
-            success: function (data) {
-                if (data.get_data) {
-                    $('#active_flights_table').DataTable({
-                        "deferRender": true,
-                        "ajax": {
-                            "url": "data.json",
-                            "dataSrc": ""
-                        }
-                    });
-                }
-            }
-        });
-    });
-</script> -->
-
 </html>
