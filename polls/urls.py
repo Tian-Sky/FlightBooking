@@ -45,4 +45,6 @@ urlpatterns = [
          name='get_manage_customer_id'),
     path('manager_delete_customer', views.manager_delete_customer,
          name='manager_delete_customer'),
+    path('manager_most_active_flight', views.manager_most_active_flight,
+         name='manager_most_active_flight'),
 ]

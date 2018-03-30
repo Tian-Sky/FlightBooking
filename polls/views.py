@@ -137,7 +137,6 @@ def register(request):
 
 def validate_register_email(request):
     email = request.POST.get('email', None)
-    print(email)
     data = {
         'is_taken': Customer.objects.filter(email=email).exists(),
     }
@@ -487,6 +486,23 @@ def update_info(request):
     return HttpResponseRedirect(reverse('polls:customer'))
 
 
+def manager_most_active_flight(reqeust):
+    # For active flights
+    print("get here")
+    active_list_result = get_best_seller()
+    active_list = []
+    for data in active_list_result:
+        a_n = Airline.objects.get(airline_id=data[2]).airline_name
+        d_name = Airport.objects.get(airport_id=data[4]).airport_name
+        d_p = "("+str(data[4])+") "+str(d_name)
+        p_name = Airport.objects.get(airport_id=data[5]).airport_name
+        a_p = "("+str(data[5])+") "+str(p_name)
+        current = [data[0], data[1], a_n, data[3], d_p, a_p]
+        active_list.append(current)
+    print("get data")
+    return JsonResponse(active_list, safe=False)
+
+
 @login_required(login_url='/polls/')
 def manager(request):
     """For manager page"""
@@ -554,17 +570,6 @@ def manager(request):
     # For revenue by airports
     revenue_by_airports = query_revenue_by_airports()
 
-    # For active flights
-    active_list_result = get_best_seller()
-    active_list = set()
-    for data in active_list_result:
-        a_n = Airline.objects.get(airline_id=data[2]).airline_name
-        d_name = Airport.objects.get(airport_id=data[4]).airport_name
-        d_p = "("+str(data[4])+") "+str(d_name)
-        p_name = Airport.objects.get(airport_id=data[5]).airport_name
-        a_p = "("+str(data[5])+") "+str(p_name)
-        active_list.add(data[0:2]+(a_n,)+(data[3],)+(d_p,)+(a_p,))
-
     context = {
         'customers': cus,
         'manage_customer': manage_customer,
@@ -573,7 +578,6 @@ def manager(request):
         'airlines': airlines,
         'airports': airports,
         'flights': flights,
-        'active_list': active_list,
         'delay_flights': delay_flights,
         'flight_airports': flight_airports,
         'reserved_customers': reserved_customers,
