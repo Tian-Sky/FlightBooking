@@ -45,6 +45,7 @@ body {
     height: 80vh;
     background-color: white;
     opacity: 0.85;
+    overflow: scroll;
 }
 
 #mynav {
@@ -57,20 +58,20 @@ body {
     margin-left: 40px;
     margin-right: 40px;
     width: auto;
-    overflow-x: scroll;
+    overflow: scroll;
 }
 
 #reservation_now {
     color: black;
     font-weight: bold;
-    overflow-x: scroll;
+    overflow: scroll;
     min-width: 1800px;
 }
 
 #reservation_history {
     color: black;
     font-weight: bold;
-    overflow-x: scroll;
+    overflow: scroll;
     min-width: 1800px;
 }
 
@@ -78,7 +79,8 @@ body {
     padding-top: 10px;
     color: black;
     font-weight: 600;
-    overflow: hidden;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 #myprofile ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -87,7 +89,7 @@ body {
 }
 
 #best_seller_list {
-    overflow-x: scroll;
+    overflow: scroll;
     min-width: 1800px;
 }
 

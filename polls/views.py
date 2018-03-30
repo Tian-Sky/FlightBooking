@@ -547,7 +547,7 @@ def manager(request):
     revenue_by_airports = query_revenue_by_airports()
 
     # For active flights
-    active_list_result = get_best_seller()[:100]
+    active_list_result = get_best_seller()
     active_list = set()
     for data in active_list_result:
         a_n = Airline.objects.get(airline_id=data[2]).airline_name
@@ -982,7 +982,8 @@ RAW_SQL = {
                 ) t 
                 JOIN Flight f
                 USING (fid)
-                ORDER BY t.popularity DESC, t.fid;
+                ORDER BY t.popularity DESC, t.fid
+                LIMIT 100;
             ''',
     'REVENUE_BY_FLIGHTS': '''
                 SELECT DISTINCT rf.FID, a.airline_id, a.airline_name, f.flight_id, sum(ri.total_cost) as total_revenue
