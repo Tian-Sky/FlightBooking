@@ -651,17 +651,23 @@
 
 <script>
     $(document).ready(function () {
-        $('.data-table').not($(".reservations")).DataTable();
+        $('.data-table').not($(".reservations")).DataTable({
+            "deferRender": true,
+        });
         $('.reservations').DataTable({
+            "deferRender": true,
             "scrollX": true
         });
         $('#customer_revenue_table').DataTable({
+            "deferRender": true,
             "order": [[4, "desc"]]
         });
         $('#revenue_flights_table').DataTable({
+            "deferRender": true,
             "order": [[4, "desc"]]
         });
         $('#active_flights_table').DataTable({
+            "deferRender": true,
             "order": [[1, "desc"]]
         });
     });

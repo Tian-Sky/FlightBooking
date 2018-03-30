@@ -3,14 +3,13 @@ import datetime
 import random
 from django.shortcuts import render
 # Create your views here.
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.views import generic
-from django.utils import timezone
 from django.db import connection
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
@@ -134,6 +133,15 @@ def register(request):
             print("error: "+form.errors.as_json())
             form = RegisterForm()
     return HttpResponseRedirect(reverse('polls:index_default'))
+
+
+def validate_register_email(request):
+    email = request.POST.get('email', None)
+    print(email)
+    data = {
+        'is_taken': Customer.objects.filter(email=email).exists(),
+    }
+    return JsonResponse(data)
 
 
 def login_page(request):
