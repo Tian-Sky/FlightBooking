@@ -16,7 +16,7 @@ from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .models import Flight, Airline, Customer, Airport, Customer, Account, ReservationInfo, RfRelation, ReservationFlight
+from .models import Flight, Airline, Customer, Airport, Customer, Account, ReservationInfo, RfRelation, ReservationFlight, FlightOccupiedSeat
 from .forms import RegisterForm
 # from .models import Question_new, Choice_new
 
@@ -192,11 +192,26 @@ def search(request):
     request.session['direct_flight'] = {}
     direct_result = Flight.objects.filter(Q(depart_airport=from_location) &
                                           Q(arrive_airport=to_location) & (Q(workday=((leave_day+1) % 2)) | Q(workday=(leave_day % 2))),)
-    for i, d_f in enumerate(direct_result):
+    # Check if each result has available seat
+    available_result = set()
+    for d_f in direct_result:
+        # Change workday from 0,1 to real date
         if d_f.workday == leave_day % 2:
             d_f.workday = leave_date
         else:
             d_f.workday = leave_date_tom
+        fid = d_f.fid
+        try:
+            f_occupied_object = FlightOccupiedSeat.objects.get(
+                fid=fid, date=d_f.workday)
+        except:
+            available_result.add(d_f)
+            continue
+        occupied_seat = f_occupied_object.occupied_seat
+        if d_f.capacity > occupied_seat:
+            available_result.add(d_f)
+    direct_result = available_result
+    for i, d_f in enumerate(direct_result):
         d_f.id = str(i)
         d_f.fare = d_f.fare*request.session['discount']
         print(d_f.fare)
@@ -331,16 +346,18 @@ def buy(request):
         request.session['duplicate_name'] = duplicate_name
         return HttpResponseRedirect(reverse('polls:book'))
 
+    # No duplication of names, start to write to db
     # First fetch data from POST and write to Reservation-Info
-    # Order date, which is todyday
+    # Create order date, which is todyday
     order_date = str(datetime.datetime.now().date())
     # Total cost for this reservation
     total_cost = loop_times * \
-        int(request.POST['cost']*request.session['discount'])
+        int(float(request.POST['cost'])*request.session['discount'])
     book_fee = int(total_cost*0.1)
     RI = ReservationInfo(order_date=order_date, total_cost=total_cost,
                          book_fee=book_fee, leave_date=leave_date, representative_id="Xinzhang")
     RI.save()
+
     # Then write to Account
     account_id, credit_card = request.POST['account_id_and_credit_card'].split(
         ",")
@@ -349,20 +366,31 @@ def buy(request):
     A = Account(customer=cus, account_id=account_id, reservation=RI,
                 create_date=order_date, credit_card=credit_card)
     A.save(force_insert=True)
-    # Now write to RF-Relation
 
+    # Now write to RF-Relation
     F = Flight.objects.get(fid=fid)
     RR = RfRelation(reservation=RI, fid=F, leave_date=leave_date)
     RR.save(force_insert=True)
+
     # Finally write to Reservation-Flight
+    # Get available seat from that flight
+    f_occupied_object = FlightOccupiedSeat.objects.get(
+        fid=F.fid, date=leave_date)
+    seat_index = f_occupied_object.occupied_seat
     for i in range(loop_times):
         index = i+1
+        seat_index = seat_index + 1
         name = str(request.POST["name"+str(index)])
         meal = request.POST["meal"+str(index)]
         cla = request.POST["class"+str(index)]
-        final_price = int(request.POST['cost']*request.session['discount'])
-        insert_passenger_info(
-            RI.reservation_id, F.fid, name, random.randint(1, F.capacity), meal, cla, final_price)
+        final_price = int(
+            float(request.POST['cost'])*float(request.session['discount']))
+        insert_passenger_info(RI.reservation_id, F.fid,
+                              name, seat_index, meal, cla, final_price)
+
+    # Do not forget to update FlightOccupiedSeat object
+    f_occupied_object.occupied_seat = seat_index
+    f_occupied_object.save()
     return HttpResponseRedirect(reverse('polls:customer'))
 
 
@@ -818,8 +846,7 @@ RAW_SQL = {
             ''',
     'INSERT_RES_FLIGHT': '''
                 INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
-                VALUES ({Reservation_ID}, {FID}, "{P_name}", {
-                        P_seat}, "{P_meal}", "{P_class}", {Price})
+                VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})
             ''',
     'SEARCH_EXIST_PASSENGER': '''
                 Select rf.P_name

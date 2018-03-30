@@ -17,7 +17,7 @@ If you have your own new apps, e.g. with official tutorial, we create new app ca
 python manage.py inspectdb > polls/models.py
 ```
 
-***You will have errors*** if you already migrate with database before. E.g., with official tutorial polls app, you will have some models under polls/models.py, and you probably already registered it under polls/admin.py. You will need to delete them all. (You can cut them to other files, and paste them back after you execute the inspectdb.)
+***You will have errors*** if you already migrate with database previously. E.g., with official tutorial polls app, you will have some models under polls/models.py, and you probably already registered it under polls/admin.py. You will need to delete them all. (You can cut them to other files, and paste them back after you execute the inspectdb.)
 
 Now, in your polls/models.py, you should have all the models you just get from your database. Run:
 
@@ -56,7 +56,7 @@ python manage.py sqlmigrate polls 0001
 
 Now add content back to polls/admin.py, include your new models in admin.py. You can see it on localhost:8080/admin page now.
 
-## Problems with exist table before migration
+## Problems with exist model in models.py before migration
 
 I met another problem when migrating. Before migrate, as I followed the official tutorial, I have two models called Question and Choice under polls/model.py, and I already did migration once. Then I ceate a new Database in mysql, and try to migrate with that new database. 
 

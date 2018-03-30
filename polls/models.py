@@ -219,3 +219,10 @@ class ReservationInfo(models.Model):
 
     class Meta:
         db_table = 'Reservation_Info'
+
+
+class FlightOccupiedSeat(models.Model):
+    fid = models.ForeignKey(
+        Flight, on_delete=models.DO_NOTHING, db_column='FID')
+    date = models.DateField('Flight_date')
+    occupied_seat = models.IntegerField('Occupied_seat')
