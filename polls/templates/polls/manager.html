@@ -67,7 +67,7 @@
                         <a class="content-link dropdown-item" id="nav_delay_flights" data-toggle="collapse" data-target="#delay_flights">Delay Flights</a>
                         <a class="content-link dropdown-item" id="nav_airport_flights" data-toggle="collapse" data-target="#airport_flights">Flights By Airport</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="content-link dropdown-item" id="nav_active_flights" data-toggle="collapse" data-target="#active_flights">Most Active Flights</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -620,6 +620,32 @@
                 </table>
             </div>
         </div>
+        <div class="section collapse" id="active_flights">
+            <h5 class="card-header">Top 100 most active flights:</h5>
+            <div class="card card-body">
+                <table id="active_flights_table" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th scope="col">FID</th>
+                            <th scope="col">Activeness</th>
+                            <th scope="col">Airline iD</th>
+                            <th scope="col">Flight ID</th>
+                            <th scope="col">Depart Airport</th>
+                            <th scope="col">Arrive Airport</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flight in active_list %}
+                        <tr>
+                            {% for data in flight %}
+                            <td scope="col">{{ data }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </body>
 
@@ -634,6 +660,9 @@
         });
         $('#revenue_flights_table').DataTable({
             "order": [[4, "desc"]]
+        });
+        $('#active_flights_table').DataTable({
+            "order": [[1, "desc"]]
         });
     });
 

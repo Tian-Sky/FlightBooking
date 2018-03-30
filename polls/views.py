@@ -483,12 +483,15 @@ def update_info(request):
 def manager(request):
     """For manager page"""
     template = loader.get_template('polls/manager.html')
+
     # For all customers
     cus = Customer.objects.order_by('customer_id')
     month = request.session.get('sales_report_month', "03")
+
     # For sales report
     sales_report_month = "2016-"+month+"%"
     sales_report = get_sales_report(sales_report_month)
+
     # For flights by airline company
     airline_query = Flight.objects.values_list(
         'airline__airline_name').distinct()
@@ -500,9 +503,11 @@ def manager(request):
             airline__airline_name=request.session['airline'])
     else:
         flights = set()
+
     # For reservations search with flight
     fid = request.session.get('reservation_search_flights', -1)
     reservation_search_flights = query_reservations_with_flight(fid)
+
     # For reservations search with customer
     first_name = request.session.get(
         'reservation_search_customer_first_name', "")
@@ -510,9 +515,11 @@ def manager(request):
         'reservation_search_customer_last_name', "")
     reservation_search_customer = query_reservation_with_customer(
         first_name, last_name)
+
     # For delay flights
     delay_month = request.session.get('delay_month', "08")
     delay_flights = query_delay_flights(delay_month)
+
     # For flights by airport
     airport_query = Airport.objects.values("airport_id", "airport_name")
     airports = {}
@@ -521,18 +528,35 @@ def manager(request):
     search_airport = request.session.get('flight_airport', "")
     flight_airports = Flight.objects.filter(
         Q(depart_airport=search_airport) | Q(arrive_airport=search_airport))
+
     # For customers on particualr flight
     reserved_fid = request.session.get('reserved_fid', -1)
     reserved_customers = query_reserved_customers(reserved_fid)
+
     # For customer revenue
     customer_revenue = query_customer_revenue()
+
     # For manager change customer information
     manage_customer_id = request.session.get('manager_update_customer_id', -1)
     manage_customer = Customer.objects.get(customer_id=manage_customer_id)
+
     # For revenue by flights
     revenue_by_flights = query_revenue_by_flights()
+
     # For revenue by airports
     revenue_by_airports = query_revenue_by_airports()
+
+    # For active flights
+    active_list_result = get_best_seller()[:100]
+    active_list = set()
+    for data in active_list_result:
+        a_n = Airline.objects.get(airline_id=data[2]).airline_name
+        d_name = Airport.objects.get(airport_id=data[4]).airport_name
+        d_p = "("+str(data[4])+") "+str(d_name)
+        p_name = Airport.objects.get(airport_id=data[5]).airport_name
+        a_p = "("+str(data[5])+") "+str(p_name)
+        active_list.add(data[0:2]+(a_n,)+(data[3],)+(d_p,)+(a_p,))
+
     context = {
         'customers': cus,
         'manage_customer': manage_customer,
@@ -541,6 +565,7 @@ def manager(request):
         'airlines': airlines,
         'airports': airports,
         'flights': flights,
+        'active_list': active_list,
         'delay_flights': delay_flights,
         'flight_airports': flight_airports,
         'reserved_customers': reserved_customers,
