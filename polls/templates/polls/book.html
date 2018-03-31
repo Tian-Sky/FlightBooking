@@ -35,17 +35,51 @@
             <h3 style="margin-left: 20px;">My Cart:</h3>
             <div id="flight">
                 <h5>
-                    <img src="{% static 'polls/images/airplane.png' %}">{{ flight.depart_airport.city }}, {{ flight.depart_airport.country }} - {{ flight.arrive_airport.city}},
-                    {{ flight.arrive_airport.country }} &nbsp; &nbsp; &nbsp;{{ flight.workday }} &nbsp; &nbsp; &nbsp; {{national_info}}</h5>
+                    <img src="{% static 'polls/images/airplane.png' %}"> {% if request.session.book_type == 0 %}
+                    <!-- if is direct flight -->
+                    {{ flight.depart_airport.city }}, {{ flight.depart_airport.country}} - {{ flight.arrive_airport.city}}, {{ flight.arrive_airport.country}}
+                    &nbsp; &nbsp; &nbsp;{{ flight.workday}} &nbsp; &nbsp; &nbsp; {{national_info}} {% else %}
+                    <!-- one stop flight -->
+                    {{ start.depart_airport.city }}, {{ start.depart_airport.country}} - {{ end.arrive_airport.city}}, {{end.arrive_airport.country}}
+                    &nbsp; &nbsp; &nbsp;{{ start.workday}} &nbsp; &nbsp; &nbsp; {{national_info}}
+                    <!-- end if here -->
+                    {% endif %}
+                </h5>
                 <table class="table table-striped">
                     <thead>
-                        <tr>
-                            <th scope="col" colspan="5">{{ flight.depart_airport }} - {{ flight.arrive_airport }}</th>
+                        <tr>{% if request.session.book_type == 0 %}
+                            <th scope="col" colspan="10">
+                                {{ flight.depart_airport }} - {{ flight.arrive_airport }}</th>
+                            {% else %} {% for flight in flights %}
+                            <th scope="col" colspan="10">
+                                <p>{{ flight.depart_airport }}</p> - {{ flight.arrive_airport }}</th>
+                            {% endfor %} {% endif %}
                         </tr>
                     </thead>
                 </table>
                 <table class="table table-striped">
                     <tbody>
+                        {% if request.session.book_type == 0 %}
+                        <tr>
+
+                            <td style="width: 25%">{{ flight.airline.airline_name }}, Flight No. {{ flight.flight_id }}
+                            </td>
+                            <td style="width: 20%">departs {{ flight.depart_airport.airport_id }}, {{flight.depart_time}}
+                                <p>{{ flight.workday }}</p>
+                            </td>
+                            <td style="width: 20%">arrives {{ flight.arrive_airport.airport_id }}, {{flight.arrive_time}}
+                                <p>{{ flight.arrive_date }}</p>
+                            </td>
+                            <td>
+                                &nbsp; &nbsp;
+                                <img src="{% static 'polls/images/svg/clock.svg' %}" alt="clock" style="width:15px; height: 15px;margin-bottom:3px;">
+                                <p>{{ flight.fly_hour }} hours</p>
+                            </td>
+                            <td> Per person:
+                                <p>${{ flight.fare }}</p>
+                            </td>
+                        </tr>
+                        {% else %} {% for flight in flights %}
                         <tr>
                             <td style="width: 25%">{{ flight.airline.airline_name }}, Flight No. {{ flight.flight_id }}
                             </td>
@@ -64,6 +98,7 @@
                                 <p>${{ flight.fare }}</p>
                             </td>
                         </tr>
+                        {% endfor %} {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -76,10 +111,17 @@
                 <div id="pform">
                     <form class="needs-validation" novalidate action="{% url 'polls:buy' %}" method="post">{% csrf_token %}
                         <div class="form-group row">
-                            <label for="account" class="col-sm-2 col-form-label">Select account: </label>
+                            {% if request.session.book_type == 0 %}
                             <input type="hidden" name="cost" value="{{ flight.fare }}">
                             <input type="hidden" name="leave_date" value="{{ flight.workday }}">
-                            <input type="hidden" name="fid" value="{{ flight.fid }}">
+                            <input type="hidden" name="fid" value="{{ flight.fid }}"> {% else %}
+                            <input type="hidden" name="cost1" value="{{ start.fare }}">
+                            <input type="hidden" name="leave_date1" value="{{ start.workday }}">
+                            <input type="hidden" name="fid1" value="{{ start.fid }}">
+                            <input type="hidden" name="cost2" value="{{ end.fare }}">
+                            <input type="hidden" name="leave_date2" value="{{ end.workday }}">
+                            <input type="hidden" name="fid2" value="{{ end.fid }}"> {% endif %}
+                            <label for="account" class="col-sm-2 col-form-label">Select account: </label>
                             <div class="col-sm-4">
                                 <select id="account" name="account_id_and_credit_card" class="form-control">
                                     {% for account in accounts %} {% if forloop.counter == 1 %}

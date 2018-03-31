@@ -82,8 +82,8 @@
                                 </form>
                                 {% else %}
                                 <button type="button" class="btn btn-primary" id="warning_button">Select</button>
-                                {% endif %}
                             </div>
+                            {% endif %}
                         </th>
                     </tr>
                     {% endfor %}
@@ -107,6 +107,7 @@
                         <th scope="col">Depart Airport</th>
                         <th scope="col">Arrive Time</th>
                         <th scope="col">Arrive Airport</th>
+                        <th scope="col">Book</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,6 +122,18 @@
                         <td>{{ flight.5 }}</td>
                         <td>{{ flight.6 }}</td>
                         <td>{{ flight.7 }}</td>
+                        <td scope="row" rowspan="2">
+                            {% if user.is_authenticated %}
+                            <div>
+                                <form action="{% url 'polls:book_one_stop' %}" method="post">{% csrf_token %}
+                                    <input type="text" name="id" value="{{ flight.16 }}" hidden>
+                                    <button type="submit" class="btn btn-primary" value="submit">Select</button>
+                                </form>
+                                {% else %}
+                                <button type="button" class="btn btn-primary" id="warning_button">Select</button>
+                            </div>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row" style="display: none;">{{ forloop.counter }}</th>
@@ -132,6 +145,7 @@
                         <td>{{ flight.13 }}</td>
                         <td>{{ flight.14 }}</td>
                         <td>{{ flight.15 }}</td>
+                        <th scope="row" style="display: none;">{{ forloop.counter }}</th>
                     </tr>
                     {% endfor %}
                 </tbody>
