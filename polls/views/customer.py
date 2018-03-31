@@ -107,23 +107,8 @@ def execute_custom_sql(s):
 
 
 RAW_SQL = {
-    'ONE_STOP_FLIGHT': '''
-                SELECT *
-                FROM(
-                SELECT f1.Airline_ID as f_airline_id, f1.Flight_ID as f_flight_id, f1.Fare as f_fare, f1.Workday as f_workday,
-                f1.Depart_time as f_depart_time,f1.Depart_Airport as f_depart_airport, f1.Arrive_time as f_arrive_time,
-                f1.Arrive_Airport as f_arrive_airport,f2.Airline_ID as s_airline_id, f2.Flight_ID as s_flight_id, f2.Fare as s_fare,
-                f2.Workday as s_worday, f2.Depart_time as s_depart_time,f2.Depart_Airport as s_depart_airport,
-                f2.Arrive_time as s_arrive_time, f2.Arrive_Airport as s_arrive_airport
-                FROM Flight f1
-                JOIN Flight f2
-                WHERE f1.Arrive_Airport=f2.Depart_Airport
-                AND f1.workday={workday1} AND f2.workday={workday2}
-                ) res
-                WHERE f_depart_airport="{start_airport}" AND s_arrive_airport="{end_airport}"
-            ''',
     'RES_HISTORY': '''
-                SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
+                SELECT DISTINCT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
                     rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
                 JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
@@ -136,7 +121,7 @@ RAW_SQL = {
                 ) ORDER BY rf.Reservation_ID DESC;
             ''',
     'RES_CURRENT': '''
-                SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
+                SELECT DISTINCT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
                     rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
                 FROM Reservation_Flight rf
                 JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
@@ -148,111 +133,6 @@ RAW_SQL = {
                     WHERE a.Customer_ID = {customer_id}
                 ) ORDER BY rf.Reservation_ID DESC;
             ''',
-    'INSERT_RES_FLIGHT': '''
-                INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
-                VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})
-            ''',
-    'SEARCH_EXIST_PASSENGER': '''
-                Select rf.P_name
-                from Reservation_Flight rf
-                Join RF_Relation rr USING (Reservation_ID, FID)
-                WHERE rr.FID={fid} and rr.leave_date = "{leave_date}";
-            ''',
-    'SALES_REPORT': '''
-                SELECT a.Airline_name, Airline_ID, SUM(cost) AS Total_sales
-                FROM
-                    (
-                    SELECT t2.Airline_ID, t2.Total_cost/COUNT(t2.Total_cost) AS cost, t2.dates
-                    FROM
-                        (
-                        SELECT rl.Reservation_ID, t1.Total_cost, f.Airline_ID, t1.dates
-                        FROM RF_Relation rl
-                        JOIN
-                            (
-                            SELECT rf.Reservation_ID, rf.Total_cost, rf.Order_date AS dates
-                            FROM  Reservation_Info rf
-                            WHERE rf.order_date LIKE('{month}')
-                            ) t1
-                        ON rl.Reservation_ID = t1.Reservation_ID
-                        JOIN Flight f ON f.FID = rl.FID
-                        ) t2
-                    GROUP BY t2.Reservation_ID, t2.Airline_ID, t2.dates
-                    ) t3
-                JOIN Airline a USING (Airline_ID)
-                GROUP BY t3.Airline_ID
-                ORDER BY a.Airline_name;
-            ''',
-    'RESERVATION_WITH_FLIGHT': '''
-                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date, ri.Total_cost,
-                        ri.Leave_date, f.Depart_Airport, f.Arrive_Airport, rf.P_name, rf.P_seat,
-                        rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
-                FROM Reservation_Flight rf
-                JOIN Flight f ON rf.FID = f.FID
-                JOIN Reservation_Info ri ON rf.Reservation_ID = ri.Reservation_ID
-                WHERE rf.FID = {fid};
-            ''',
-    'RESERVATION_WITH_CUSTOMER': '''
-                SELECT rf.Reservation_ID, rf.FID, f.Airline_ID, f.Flight_ID, ri.order_date,
-                    ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
-                FROM Reservation_Flight rf
-                JOIN RF_Relation r ON r.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f ON f.FID = rf.FID
-                JOIN
-                    (
-                    SELECT a.Reservation_ID, t1.First_name, t1.Last_name
-                    FROM Account a
-                    JOIN
-                        (
-                        SELECT c.Customer_ID, c.First_name, c.Last_name
-                        FROM Customer c
-                        WHERE c.First_name="{first_name}" and c.Last_name="{last_name}"
-                        ) t1
-                    ON a.Customer_ID = t1.Customer_ID
-                    ) t3
-                ON rf.Reservation_ID = t3.Reservation_ID
-                ORDER BY rf.Reservation_ID DESC;
-            ''',
-    'DELAY_FLIGHTS': '''
-                SELECT f.FID, d.Delay_date ,f.Depart_Airport, f.Arrive_Airport, d.Delay_time
-                FROM Flight f, Delay d
-                WHERE f.FID = d.FID and d.Delay_date LIKE('2017-{month}%')
-                AND d.Delay_time <> '00:00:00'
-                ORDER BY d.Delay_date, f.FID;
-            ''',
-    'AIRPORT_FLIGHTS': '''
-                SELECT f.FID, f.Depart_Airport, f.Arrive_Airport 
-                FROM Flight f
-                WHERE f.Depart_Airport = '{airport}' OR f.Arrive_Airport = '{airport}';
-            ''',
-    'RESERVED_CUSTOMERS': '''
-                SELECT c.Customer_ID, c.First_name, c.Last_name, c.Email 
-                FROM Customer c
-                WHERE c.Customer_ID IN
-                    (
-                    SELECT a.Customer_ID 
-                    FROM Account a 
-                    where a.Reservation_ID IN
-                    (
-                    SELECT DISTINCT rf.Reservation_ID 
-                    FROM Reservation_Flight rf
-                    WHERE rf.FID = {fid}
-                    )
-                );
-            ''',
-    'CUSTOMER_REVENUE': '''
-                SELECT c.Customer_ID, c.First_name, c.Last_name, c.Email, t1.cost
-                FROM Customer c,
-                (
-                    SELECT a.Customer_ID AS CID, SUM(ri.Total_cost) AS cost
-                    FROM Account a, Reservation_Info ri
-                    WHERE a.Reservation_ID = ri.Reservation_ID
-                    GROUP BY a.Customer_ID
-                ) t1
-                WHERE c.Customer_ID = t1.CID
-                ORDER BY cost DESC;
-            ''',
     'BEST_SELLER': '''
                 SELECT t.fid, t.popularity, f.Airline_ID, f.Flight_ID, f.Depart_Airport, f.Arrive_Airport
                 FROM(
@@ -263,27 +143,6 @@ RAW_SQL = {
                 USING (fid)
                 ORDER BY t.popularity DESC, t.fid
                 LIMIT 100;
-            ''',
-    'REVENUE_BY_FLIGHTS': '''
-                SELECT DISTINCT rf.FID, a.airline_id, a.airline_name, f.flight_id, sum(ri.total_cost) as total_revenue
-                FROM Reservation_Flight rf
-                JOIN RF_Relation rl ON rl.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f ON f.FID = rf.FID
-                JOIN Airline a on a.Airline_ID = f.airline_id
-                group by rf.fid, a.airline_name, f.Flight_ID
-                order by total_revenue desc, rf.FID, a.airline_id
-                LIMIT 100;
-            ''',
-    'REVENUE_BY_AIRPORTS': '''
-                SELECT ap.Airport_ID, ap.Airport_name, ap.city, ap.country, sum(ri.total_cost) as total_revenue
-                FROM Reservation_Flight rf
-                JOIN RF_Relation rl ON rl.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri ON ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f ON f.FID = rf.FID
-                JOIN Airport ap on ap.Airport_ID = f.Arrive_Airport
-                group by ap.Airport_ID, ap.Airport_name, ap.city, ap.country
-                order by total_revenue desc, ap.Airport_ID;
             ''',
 }
 

@@ -65,16 +65,20 @@ def buy(request):
         fid1 = request.POST['fid1']
         cost1 = request.POST['cost1']
         leave_date1 = request.POST['leave_date1']
-        save_to_db(fid1, cost1, loop_times, leave_date1, request)
+        RI = save_to_db(fid1, cost1, loop_times, leave_date1, request)
         fid2 = request.POST['fid2']
         cost2 = request.POST['cost2']
         leave_date2 = request.POST['leave_date2']
-        save_to_db(fid2, cost2, loop_times, leave_date2, request)
+        save_to_db_second(fid2, cost2, loop_times, leave_date2, request, RI)
 
     return HttpResponseRedirect(reverse('polls:customer'))
 
 
 def save_to_db(fid, cost, loop_times, leave_date, request):
+    '''
+    Save new data to db
+    1.Reservation-Info - 2.Account - 3.RF-Relation - 4.Reservation-Flight
+    '''
     # No duplication of names, start to write to db
     # First fetch data from POST and write to Reservation-Info
     # Create order date, which is todyday
@@ -96,6 +100,43 @@ def save_to_db(fid, cost, loop_times, leave_date, request):
                 create_date=order_date, credit_card=credit_card)
     A.save(force_insert=True)
 
+    # Now write to RF-Relation
+    F = Flight.objects.get(fid=fid)
+    RR = RfRelation(reservation=RI, fid=F, leave_date=leave_date)
+    RR.save(force_insert=True)
+
+    # Finally write to Reservation-Flight
+    # Get available seat from that flight
+    try:
+        f_occupied_object = FlightOccupiedSeat.objects.get(
+            fid=F.fid, date=leave_date)
+    except:
+        f_occupied_object = FlightOccupiedSeat(
+            fid=F, date=leave_date, occupied_seat=0)
+    seat_index = f_occupied_object.occupied_seat
+    for i in range(loop_times):
+        index = i+1
+        seat_index = seat_index + 1
+        name = str(request.POST["name"+str(index)])
+        meal = request.POST["meal"+str(index)]
+        cla = request.POST["class"+str(index)]
+        final_price = int(
+            float(cost)*float(request.session['discount']))
+        insert_passenger_info(RI.reservation_id, F.fid,
+                              name, seat_index, meal, cla, final_price)
+
+    # Do not forget to update FlightOccupiedSeat object
+    f_occupied_object.occupied_seat = seat_index
+    f_occupied_object.save()
+    return RI
+
+
+def save_to_db_second(fid, cost, loop_times, leave_date, request, RI):
+    '''
+    Save new data to db, with Reservation-Info and Account
+    For one_top_flight, they share the same Reservation-Info and Account
+    3.RF-Relation - 4.Reservation-Flight
+    '''
     # Now write to RF-Relation
     F = Flight.objects.get(fid=fid)
     RR = RfRelation(reservation=RI, fid=F, leave_date=leave_date)
