@@ -287,13 +287,6 @@ def manager_delete_customer(request):
     return HttpResponseRedirect(reverse('polls:manager'))
 
 
-def one_stop_flight(start, end, workday1, workday2):
-    query = RAW_SQL['ONE_STOP_FLIGHT'].format(start_airport=start, end_airport=end, workday1=workday1,
-                                              workday2=workday2)
-    # print(query)
-    return execute_custom_sql(query)
-
-
 def exist_passenger(fid, leave_date):
     query = RAW_SQL['SEARCH_EXIST_PASSENGER'].format(
         fid=fid, leave_date=leave_date)
@@ -391,47 +384,6 @@ def getDayFromDate(date):
 
 
 RAW_SQL = {
-    'ONE_STOP_FLIGHT': '''
-                SELECT *
-                FROM(
-                SELECT f1.Airline_ID as f_airline_id, f1.Flight_ID as f_flight_id, f1.Fare as f_fare, f1.Workday as f_workday,
-                f1.Depart_time as f_depart_time,f1.Depart_Airport as f_depart_airport, f1.Arrive_time as f_arrive_time,
-                f1.Arrive_Airport as f_arrive_airport,f2.Airline_ID as s_airline_id, f2.Flight_ID as s_flight_id, f2.Fare as s_fare,
-                f2.Workday as s_worday, f2.Depart_time as s_depart_time,f2.Depart_Airport as s_depart_airport,
-                f2.Arrive_time as s_arrive_time, f2.Arrive_Airport as s_arrive_airport
-                FROM Flight f1
-                JOIN Flight f2
-                WHERE f1.Arrive_Airport=f2.Depart_Airport
-                AND f1.workday={workday1} AND f2.workday={workday2}
-                ) res
-                WHERE f_depart_airport="{start_airport}" AND s_arrive_airport="{end_airport}"
-            ''',
-    'RES_HISTORY': '''
-                SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
-                FROM Reservation_Flight rf
-                JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f on f.FID = rf.FID
-                WHERE ri.order_date < '2018-01-01' AND rf.Reservation_ID in (
-                    SELECT Reservation_ID
-                    FROM Account a
-                    WHERE a.Customer_ID = {customer_id}
-                ) ORDER BY rf.Reservation_ID DESC;
-            ''',
-    'RES_CURRENT': '''
-                SELECT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
-                FROM Reservation_Flight rf
-                JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f on f.FID = rf.FID
-                WHERE ri.order_date > '2018-01-01' AND rf.Reservation_ID in (
-                    SELECT Reservation_ID
-                    FROM Account a
-                    WHERE a.Customer_ID = {customer_id}
-                ) ORDER BY rf.Reservation_ID DESC;
-            ''',
     'INSERT_RES_FLIGHT': '''
                 INSERT INTO Reservation_Flight (Reservation_ID, FID, P_name, P_seat, P_meal, P_class, Price)
                 VALUES ({Reservation_ID}, {FID}, "{P_name}", {P_seat}, "{P_meal}", "{P_class}", {Price})

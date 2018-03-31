@@ -108,30 +108,48 @@ def execute_custom_sql(s):
 
 RAW_SQL = {
     'RES_HISTORY': '''
-                SELECT DISTINCT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                SELECT t2.reservation_id, t2.fid, t2.order_date, t2.total_cost, t2.leave_date, t2.da, t2.aa, rf.p_name, rf.p_seat, 
+				rf.p_meal, rf.p_class, rf.price, t2.representative_id
                 FROM Reservation_Flight rf
-                JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f on f.FID = rf.FID
-                WHERE ri.order_date < '2018-01-01' AND rf.Reservation_ID in (
-                    SELECT Reservation_ID
-                    FROM Account a
-                    WHERE a.Customer_ID = {customer_id}
-                ) ORDER BY rf.Reservation_ID DESC;
+                JOIN (
+                SELECT t1.Reservation_id, t1.fid, ri.order_date, ri.total_cost, t1.leave_date, t1.da, t1.aa, ri.Representative_ID
+                FROM Reservation_Info ri
+                JOIN(
+                SELECT rr.reservation_id, rr.fid, rr.leave_date, f.Depart_Airport as da, f.Arrive_Airport as aa
+                FROM RF_Relation rr
+                JOIN Flight f using (fid)
+                WHERE rr.reservation_id in 
+                (
+                SELECT Reservation_ID
+                FROM Account a
+                WHERE a.Customer_ID = {customer_id}
+                ) 
+                ) t1 USING (reservation_id)
+                WHERE ri.order_date < '2018-01-01'
+                ) t2 USING (reservation_id, fid)
+                ORDER BY Reservation_ID desc, p_name;
             ''',
     'RES_CURRENT': '''
-                SELECT DISTINCT rf.Reservation_ID, rf.FID, ri.order_date, ri.total_cost, ri.Leave_date, f.Depart_Airport, f.Arrive_Airport,
-                    rf.P_name, rf.P_seat, rf.P_meal, rf.P_class, rf.Price, ri.Representative_ID
+                SELECT t2.reservation_id, t2.fid, t2.order_date, t2.total_cost, t2.leave_date, t2.da, t2.aa, rf.p_name, rf.p_seat, 
+				rf.p_meal, rf.p_class, rf.price, t2.representative_id
                 FROM Reservation_Flight rf
-                JOIN RF_Relation r on r.Reservation_ID = rf.Reservation_ID
-                JOIN Reservation_Info ri on ri.Reservation_ID = rf.Reservation_ID
-                JOIN Flight f on f.FID = rf.FID
-                WHERE ri.order_date > '2018-01-01' AND rf.Reservation_ID in (
-                    SELECT Reservation_ID
-                    FROM Account a
-                    WHERE a.Customer_ID = {customer_id}
-                ) ORDER BY rf.Reservation_ID DESC;
+                JOIN (
+                SELECT t1.Reservation_id, t1.fid, ri.order_date, ri.total_cost, t1.leave_date, t1.da, t1.aa, ri.Representative_ID
+                FROM Reservation_Info ri
+                JOIN(
+                SELECT rr.reservation_id, rr.fid, rr.leave_date, f.Depart_Airport as da, f.Arrive_Airport as aa
+                FROM RF_Relation rr
+                JOIN Flight f using (fid)
+                WHERE rr.reservation_id in 
+                (
+                SELECT Reservation_ID
+                FROM Account a
+                WHERE a.Customer_ID = {customer_id}
+                ) 
+                ) t1 USING (reservation_id)
+                WHERE ri.order_date > '2018-01-01'
+                ) t2 USING (reservation_id, fid)
+                ORDER BY Reservation_ID desc, p_name;
             ''',
     'BEST_SELLER': '''
                 SELECT t.fid, t.popularity, f.Airline_ID, f.Flight_ID, f.Depart_Airport, f.Arrive_Airport

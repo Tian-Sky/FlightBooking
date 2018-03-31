@@ -69,13 +69,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for cur in current %}
+                            {% regroup current by 0 as current_list %} {% for current in current_list %}
+                            <tr class="table-primary">
+                                <th scope="col" colspan="12"> Res# {{ current.grouper }} Details:</th>
+                            </tr>
+                            {% for cur in current.list %}
                             <tr>
                                 <th scope="col">{{ cur.0 }}</th>
                                 <th scope="col">{{ cur.1 }}</th>
-                                <th scope="col">{{ cur.2 }}</th>
+                                <th scope="col">{{ cur.2|date:"SHORT_DATE_FORMAT" }}</th>
                                 <!-- <th scope="col">{{ his.3 }}</th> -->
-                                <th scope="col">{{ cur.4 }}</th>
+                                <th scope="col">{{ cur.4|date:"SHORT_DATE_FORMAT" }}</th>
                                 <th scope="col">{{ cur.5 }}</th>
                                 <th scope="col">{{ cur.6 }}</th>
                                 <th scope="col">{{ cur.7 }}</th>
@@ -85,7 +89,7 @@
                                 <th scope="col">{{ cur.11 }}</th>
                                 <th scope="col">{{ cur.12 }}</th>
                             </tr>
-                            {% endfor %}
+                            {% endfor %} {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -114,9 +118,9 @@
                             <tr>
                                 <th scope="col">{{ his.0 }}</th>
                                 <th scope="col">{{ his.1 }}</th>
-                                <th scope="col">{{ his.2 }}</th>
+                                <th scope="col">{{ his.2|date:"SHORT_DATE_FORMAT" }}</th>
                                 <!-- <th scope="col">{{ his.3 }}</th> -->
-                                <th scope="col">{{ his.4 }}</th>
+                                <th scope="col">{{ his.4|date:"SHORT_DATE_FORMAT" }}</th>
                                 <th scope="col">{{ his.5 }}</th>
                                 <th scope="col">{{ his.6 }}</th>
                                 <th scope="col">{{ his.7 }}</th>
