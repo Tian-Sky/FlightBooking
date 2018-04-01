@@ -71,7 +71,22 @@ def buy(request):
         leave_date2 = request.POST['leave_date2']
         save_to_db_second(fid2, cost2, loop_times, leave_date2, request, RI)
 
-    return HttpResponseRedirect(reverse('polls:customer'))
+    # One way trip, we finish and jump to cutomer page
+    print(request.session['trip_type'])
+    print("round")
+    print(request.session['round_way'])
+    if request.session['trip_type'] != 1:
+        return HttpResponseRedirect(reverse('polls:customer'))
+    # Round way trip, first trip finished, and jump to search page
+    # With depart and arrive reversed
+    if not request.session['round_way']:
+        request.session['round_way'] = True
+        return HttpResponseRedirect(reverse('polls:search'))
+    # Round way trip, we finish both trips, return to customer page
+    else:
+        # Finished, reset to false for next search
+        request.session['round_way'] = False
+        return HttpResponseRedirect(reverse('polls:customer'))
 
 
 def save_to_db(fid, cost, loop_times, leave_date, request):

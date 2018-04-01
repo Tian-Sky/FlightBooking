@@ -105,6 +105,11 @@
     margin-top: 2px;
 }
 
+#selection #dropdown #trip_type {
+    margin-left: -20px;
+    margin-right: 20px;
+}
+
 #selection #dropdown #fourth_group {
     float: right;
 }
@@ -127,4 +132,5 @@ li a {
 
 #footer #copyright {
     font-size: x-small;
+    margin-top: -20px;
 }

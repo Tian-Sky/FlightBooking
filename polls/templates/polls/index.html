@@ -39,7 +39,7 @@
                 </p>
                 <p class="right">
                     login
-                    <img src=" {% static 'polls/images/login.jpg' %} " width="30 " height="30 ">
+                    <img src=" {% static 'polls/images/login.jpg' %}" width="30" height="30">
                 </p>
             </div> -->
             <div class="right">
@@ -233,33 +233,40 @@
                     <div class="form-group row" id="second_group">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Depart Date</label>
                         <input type="text" onfocus="(this.type='date')" id="leave" name="leave" class="col-sm-4" placeholder="Depart Date">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Return Date</label>
-                        <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-4" placeholder="Return Date">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label return">Return Date</label>
+                        <input type="text" onfocus="(this.type='date')" id="return" name="return" class="col-sm-4 return" placeholder="Return Date">
                     </div>
                     <div class="form-group row" id="third_group">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Passenger</label>
                         <button id="passenger" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
-                            <img id="passenger_icon" src="{% static 'polls/images/passenger2.jpg' %}" width=" 22 " height="22 " />
+                            <img id="passenger_icon" src="{% static 'polls/images/passenger2.jpg' %}" width="22" height="22" />
                             <span class="passenger">1</span>
                         </button>
-                        <div class="dropdown-menu ">
+                        <div class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item " href="# ">1</a>
+                                <a class="dropdown-item" href="#">1</a>
                             </li>
                             <li>
-                                <a class="dropdown-item " href="# ">2</a>
+                                <a class="dropdown-item" href="#">2</a>
                             </li>
                             <li>
-                                <a class="dropdown-item " href="# ">3</a>
+                                <a class="dropdown-item" href="#">3</a>
                             </li>
                             <li>
-                                <a class="dropdown-item " href="# ">4</a>
+                                <a class="dropdown-item" href="#">4</a>
                             </li>
                             <li>
-                                <a class="dropdown-item " href="# ">5</a>
+                                <a class="dropdown-item" href="#">5</a>
                             </li>
                         </div>
+                    </div>
+                    <div class="form-group row" id="extra_group">
+                        <label class="col-sm-2 col-form-label" for="trip_type">Trip Type</label>
+                        <select id="trip_type" name="trip_type" class="col-sm-1">
+                            <option selected value="0">One-Way</option>
+                            <option value="1">Round Trip</option>
+                        </select>
                     </div>
                     <div class="form-group row" id="fourth_group">
                         <button id="search" type="submit" class="btn btn-success">Search</button>
@@ -343,7 +350,7 @@
             //the user that they have entered the correct password 
             pass2.style.backgroundColor = goodColor;
             message.style.color = goodColor;
-            // message.innerHTML = "Passwords Match!"
+            // message.innerHTML ="Passwords Match!"
         } else {
             //The passwords do not match.
             //Set the color to the bad color and
@@ -401,6 +408,18 @@
         });
 
     });
+    $(document).ready(function () {
+        $(".return").hide();
+    });
+    $("#trip_type").change(function () {
+        if ($(this).val() == 0) {
+            $(".return").hide();
+        }
+        if ($(this).val() == 1) {
+            $(".return").show();
+        }
+    })
+
 </script>
 
 </html>

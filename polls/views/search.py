@@ -13,28 +13,52 @@ def search(request):
     Logic to search flight
     '''
     template = loader.get_template('polls/search.html')
-    from_location = request.POST['from']
-    from_location = from_location[1:4]
-    to_location = request.POST['to']
-    to_location = to_location[1:4]
-    # Put passenger number into session for book use
-    passenger = request.POST['passenger_number']
-    request.session['passenger'] = passenger
+    current_date = datetime.datetime.now()
 
-    leave_date = timezone.now(
-    ) if request.POST['leave'] is None else request.POST['leave']
-    leave_date_tom = getTomorrowDate(leave_date)
-    leave_day = getDayFromDate(leave_date)
+    # If we jump back for second trip of round trip
+    if request.session.get('round_way', False):
+        request.session['round_way'] = True
+        # back trip of round trip, reverse from and to location
+        from_location = request.session['to_location']
+        to_location = request.session['from_location']
+        passenger = request.session['passenger']
+        # Although we still call it leave_date, but it is actully return date
+        leave_date = request.session['return_date_search']
+        leave_date_tom = getTomorrowDate(leave_date)
+        leave_day = getDayFromDate(leave_date)
+    # One way trip or first search of round trip
+    else:
+        from_location = request.POST['from']
+        from_location = from_location[1:4]
+        to_location = request.POST['to']
+        to_location = to_location[1:4]
+        request.session['from_location'] = from_location
+        request.session['to_location'] = to_location
+        # Get trip type
+        if request.POST['trip_type'] == "0":
+            request.session['trip_type'] = 0  # one way
+        else:
+            request.session['trip_type'] = 1  # round trip
+        request.session['round_way'] = False
+        # Put passenger number into session for book use
+        passenger = request.POST['passenger_number']
+        request.session['passenger'] = passenger
+        # leave date
+        leave_date = timezone.now(
+        ) if request.POST['leave'] is None else request.POST['leave']
+        leave_date_tom = getTomorrowDate(leave_date)
+        leave_day = getDayFromDate(leave_date)
+        request.session['leave_date_search'] = leave_date
+        # return date
+        return_date = (timezone.now() + datetime.timedelta(days=1)
+                       ) if request.POST['return'] is None else request.POST['return']
+        request.session['return_date_search'] = return_date
+        # return_day = getDayFromDate(return_date)
 
     # Get discount
-    current_date = datetime.datetime.now()
     date_delta = datetime.datetime.strptime(
         leave_date, '%Y-%m-%d')-current_date
     request.session['discount'] = getDiscount(date_delta.days)
-
-    return_date = (timezone.now() + datetime.timedelta(days=1)
-                   ) if request.POST['return'] is None else request.POST['return']
-    return_day = getDayFromDate(return_date)
 
     # Get direct flight
     request.session['direct_flight'] = {}
@@ -54,7 +78,6 @@ def search(request):
     for i, d_f in enumerate(direct_result):
         d_f.id = str(i)
         d_f.fare = d_f.fare*request.session['discount']
-        print(d_f.fare)
         # Put direct flight FID into into session for book use
         # We also need to save leave date
         request.session['direct_flight'][i] = str(d_f.fid)+","+d_f.workday
@@ -85,7 +108,6 @@ def search(request):
         'direct_flight': direct_result,
         'one_stop_flight': one_stop_result,
         'leave_date': leave_date,
-        'return_date': return_date,
     }
     return HttpResponse(template.render(context, request))
 
