@@ -20,7 +20,10 @@ def register(request):
             email = form.cleaned_data['email']
             email = email.lower().strip()
             # No duplciate email are allowed
-            exist = Customer.objects.get(email=email)
+            try:
+                exist = Customer.objects.get(email=email)
+            except:
+                exist = None
             if exist:
                 return HttpResponseRedirect(reverse('polls:index_warning', args=(2,)))
             password1 = form.cleaned_data['password1']
