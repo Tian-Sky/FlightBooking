@@ -109,22 +109,21 @@
                                         <form class="needs-validation" novalidate action="{% url 'polls:register' %}" method="post" id="register" data-validate-email-url="{% url 'polls:validate_register_email' %}">{% csrf_token %}
                                             <div class="form-group">
                                                 <label for="Email">Pleae enter your email address (*)</label>
-                                                <input type="email" class="form-control" id="register_email" name="email" aria-describedby="emailHelp" placeholder="Enter email"
-                                                    required>
+                                                <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email" required>
                                                 <div class="warning" id="erremail" style="color:red; display:none">
                                                     Email cannot be the empty.
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="password1">Please enter your password (*)</label>
-                                                <input type="password" class="form-control" id="register_password1" name="password1" placeholder="Password" required>
+                                                <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
                                                 <div class="warning" id="errpassword1" style="color:red; display:none">
                                                     Password cannot be the empty.
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="password2">Please enter your password again (*)</label>
-                                                <input type="password" class="form-control" id="register_password2" name="password2" placeholder="Password" onkeyup="checkPass(); return false;"
+                                                <input type="password" class="form-control" id="password2" name="password2" placeholder="Password" onkeyup="checkPass(); return false;"
                                                     required>
                                                 <div class="warning" id="errpassword2" style="color:red; display:none">
                                                     Password cannot be the empty.
@@ -393,7 +392,7 @@
 </script>
 
 <script>
-    $("#register_email").change(function () {
+    $("#email").change(function () {
         var form = $(this).closest("form");
         $.ajax({
             url: form.attr("data-validate-email-url"),
