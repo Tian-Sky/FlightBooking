@@ -1,8 +1,8 @@
 # All about Database
 
-Mysql, sqlserver, PregreSql
+SQL: Mysql, sqlserver, Postgresql
 
-MongoDB, Cassandra, Redis
+NoSQL: MongoDB, Cassandra, Redis
 
 ## Storage
 
