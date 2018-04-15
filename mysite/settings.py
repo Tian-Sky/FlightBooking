@@ -91,7 +91,7 @@ DATABASES = {
         # 'PASSWORD': 'tianqinan',
         # 'HOST': 'cs539-tian.cptweiginnye.us-east-1.rds.amazonaws.com',
         # 'PORT': '3306',
-        'NAME': 'travel',
+        'NAME': 'travel_management_2',
         'USER': 'tian',
         'PASSWORD': '8269287',
         'HOST': 'localhost',

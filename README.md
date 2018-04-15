@@ -12,7 +12,7 @@ Index page screenshot:
 
 ![](/screenshot/index.png "index page")
 
-For more screenshot, please click [here](screenshot).
+For more screenshots, please click [here](screenshot).
 
 ## Virtual Environment
 
